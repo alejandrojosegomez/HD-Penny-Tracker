@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#11141b"/><stop offset="1" stop-color="#0b0d12"/></linearGradient>
+    <style>
+      .t{fill:#e8eaf0;font-size:14px;font-weight:600}
+      .s{fill:#8b93a7;font-size:12px}
+      .v{fill:#e8eaf0;font-size:13px;font-weight:700}
+      .bar{rx:6}
+    </style>
+  </defs>
+  <rect width="960" height="420" fill="url(#bg)" rx="16"/>
+  <text class="t" x="40" y="40" font-size="18">How an item earns its score</text>
+  <text class="s" x="40" y="62">Signals add up to 100. Price endings (.03 / .06) are almost worthless on purpose — the data says they don't predict the next move.</text>
+
+  <!-- rows: label, max points, bar -->
+  <g transform="translate(40,90)">
+    <g>
+      <text class="t" x="0" y="16">Discount depth</text><text class="s" x="0" y="32">≥90% → 30 · ≥95% → 40 · ≥99% → 50</text>
+      <rect class="bar" x="360" y="6" width="0" height="20" fill="#f96302"><animate attributeName="width" from="0" to="250" dur="1.1s" fill="freeze"/></rect>
+      <text class="v" x="620" y="22">50</text>
+    </g>
+    <g transform="translate(0,46)">
+      <text class="t" x="0" y="16">ZMA flip</text><text class="s" x="0" y="32">back to full price + unavailable, right after deep clearance</text>
+      <rect class="bar" x="360" y="6" width="0" height="20" fill="#ff4d4d"><animate attributeName="width" from="0" to="200" dur="1.1s" begin="0.15s" fill="freeze"/></rect>
+      <text class="v" x="570" y="22">40</text>
+    </g>
+    <g transform="translate(0,92)">
+      <text class="t" x="0" y="16">Community report</text><text class="s" x="0" y="32">on a public penny list in last 14 d + my store shows stock</text>
+      <rect class="bar" x="360" y="6" width="0" height="20" fill="#e67e22"><animate attributeName="width" from="0" to="175" dur="1.1s" begin="0.3s" fill="freeze"/></rect>
+      <text class="v" x="545" y="22">35</text>
+    </g>
+    <g transform="translate(0,138)">
+      <text class="t" x="0" y="16">Markdown count</text><text class="s" x="0" y="32">2nd distinct markdown → 15 · 3rd → 25</text>
+      <rect class="bar" x="360" y="6" width="0" height="20" fill="#f1c40f"><animate attributeName="width" from="0" to="125" dur="1.1s" begin="0.45s" fill="freeze"/></rect>
+      <text class="v" x="495" y="22">25</text>
+    </g>
+    <g transform="translate(0,184)">
+      <text class="t" x="0" y="16">Dwell time</text><text class="s" x="0" y="32">same deep price &gt;14 d with stock → 15 · &gt;30 d → 25</text>
+      <rect class="bar" x="360" y="6" width="0" height="20" fill="#2ecc71"><animate attributeName="width" from="0" to="125" dur="1.1s" begin="0.6s" fill="freeze"/></rect>
+      <text class="v" x="495" y="22">25</text>
+    </g>
+    <g transform="translate(0,230)">
+      <text class="t" x="0" y="16">Discontinued</text><text class="s" x="0" y="32">flagged inactive but still answers by item id</text>
+      <rect class="bar" x="360" y="6" width="0" height="20" fill="#3498db"><animate attributeName="width" from="0" to="100" dur="1.1s" begin="0.75s" fill="freeze"/></rect>
+      <text class="v" x="470" y="22">20</text>
+    </g>
+    <g transform="translate(0,276)">
+      <text class="t" x="0" y="16">Seasonal / price ending</text><text class="s" x="0" y="32">patio, grills, holiday after a reset → 10 · ends .02/.03 → 5</text>
+      <rect class="bar" x="360" y="6" width="0" height="20" fill="#5b6273"><animate attributeName="width" from="0" to="50" dur="1.1s" begin="0.9s" fill="freeze"/></rect>
+      <text class="v" x="420" y="22">10 · 5</text>
+    </g>
+  </g>
+
+  <!-- thresholds -->
+  <g transform="translate(700,110)">
+    <rect x="0" y="0" width="220" height="250" rx="12" fill="#171a22" stroke="#2a2f3a"/>
+    <text class="t" x="110" y="30" text-anchor="middle">What happens</text>
+    <rect x="20" y="52" width="180" height="50" rx="10" fill="#ff4d4d"/>
+    <text class="v" x="110" y="74" text-anchor="middle" fill="#fff">≥ 70 · GO SCAN TODAY</text>
+    <text class="s" x="110" y="92" text-anchor="middle" fill="#ffe0e0">Telegram alert</text>
+    <rect x="20" y="114" width="180" height="50" rx="10" fill="#f1c40f"/>
+    <text class="v" x="110" y="136" text-anchor="middle" fill="#111">45 – 69 · watch</text>
+    <text class="s" x="110" y="154" text-anchor="middle" fill="#333">weekly scan list</text>
+    <rect x="20" y="176" width="180" height="50" rx="10" fill="#262a33"/>
+    <text class="v" x="110" y="198" text-anchor="middle">&lt; 45 · log only</text>
+    <text class="s" x="110" y="216" text-anchor="middle">history keeps building</text>
+  </g>
+</svg>

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" width="960" height="360" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#11141b"/><stop offset="1" stop-color="#0b0d12"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6273"/>
+    </marker>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      .box{fill:#171a22;stroke:#2a2f3a;stroke-width:1.5;rx:12}
+      .t{fill:#e8eaf0;font-size:15px;font-weight:600}
+      .s{fill:#8b93a7;font-size:12px}
+      .hd{fill:#f96302}
+      .path{fill:none;stroke:#3a4150;stroke-width:2;marker-end:url(#arr)}
+      .dot{fill:#f96302;filter:url(#glow)}
+      .dotg{fill:#2ecc71;filter:url(#glow)}
+    </style>
+  </defs>
+  <rect width="960" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- sources -->
+  <rect class="box" x="30" y="40" width="190" height="64"/>
+  <text class="t" x="125" y="66" text-anchor="middle">homedepot.com</text>
+  <text class="s" x="125" y="86" text-anchor="middle">price · stock · per store</text>
+
+  <rect class="box" x="30" y="148" width="190" height="64"/>
+  <text class="t" x="125" y="174" text-anchor="middle">Community penny lists</text>
+  <text class="s" x="125" y="194" text-anchor="middle">PennyCentral · PennyRecon · PPM</text>
+
+  <rect class="box" x="30" y="256" width="190" height="64"/>
+  <text class="t" x="125" y="282" text-anchor="middle">Watchlist</text>
+  <text class="s" x="125" y="302" text-anchor="middle">CLI · dashboard · CSV</text>
+
+  <!-- worker -->
+  <rect class="box" x="320" y="118" width="200" height="124"/>
+  <text class="t hd" x="420" y="150" text-anchor="middle">Worker</text>
+  <text class="s" x="420" y="174" text-anchor="middle">Playwright session → curl_cffi</text>
+  <text class="s" x="420" y="194" text-anchor="middle">every 4 h · 2–4 s between calls</text>
+  <text class="s" x="420" y="214" text-anchor="middle">block detection + backoff</text>
+
+  <!-- db -->
+  <g transform="translate(600,138)">
+    <ellipse cx="60" cy="12" rx="60" ry="12" fill="#1e232d" stroke="#2a2f3a"/>
+    <rect x="0" y="12" width="120" height="70" fill="#171a22" stroke="#2a2f3a"/>
+    <ellipse cx="60" cy="82" rx="60" ry="12" fill="#171a22" stroke="#2a2f3a"/>
+    <text class="t" x="60" y="48" text-anchor="middle">price_history</text>
+    <text class="s" x="60" y="68" text-anchor="middle">SQLite / Supabase</text>
+  </g>
+
+  <!-- detect -->
+  <rect class="box" x="600" y="256" width="120" height="64"/>
+  <text class="t" x="660" y="282" text-anchor="middle">detect.py</text>
+  <text class="s" x="660" y="302" text-anchor="middle">score 0–100</text>
+
+  <!-- outputs -->
+  <rect class="box" x="790" y="40" width="150" height="64"/>
+  <text class="t" x="865" y="66" text-anchor="middle">Live dashboard</text>
+  <text class="s" x="865" y="86" text-anchor="middle">FastAPI + SSE</text>
+
+  <rect class="box" x="790" y="256" width="150" height="64"/>
+  <text class="t" x="865" y="282" text-anchor="middle">Telegram alert</text>
+  <text class="s" x="865" y="302" text-anchor="middle">score ≥ 70 → go scan</text>
+
+  <!-- arrows -->
+  <path id="p1" class="path" d="M220,72 C270,72 270,150 320,150"/>
+  <path id="p2" class="path" d="M220,180 L320,180"/>
+  <path id="p3" class="path" d="M220,288 C270,288 270,210 320,210"/>
+  <path id="p4" class="path" d="M520,180 L600,180"/>
+  <path id="p5" class="path" d="M660,232 L660,256"/>
+  <path id="p6" class="path" d="M720,288 L790,288"/>
+  <path id="p7" class="path" d="M720,160 C760,160 760,72 790,72"/>
+
+  <!-- moving dots -->
+  <circle class="dot" r="5"><animateMotion dur="2.4s" repeatCount="indefinite" begin="0s"><mpath href="#p1"/></animateMotion></circle>
+  <circle class="dot" r="5"><animateMotion dur="2.4s" repeatCount="indefinite" begin="0.8s"><mpath href="#p2"/></animateMotion></circle>
+  <circle class="dot" r="5"><animateMotion dur="2.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#p3"/></animateMotion></circle>
+  <circle class="dot" r="5"><animateMotion dur="1.6s" repeatCount="indefinite" begin="0.4s"><mpath href="#p4"/></animateMotion></circle>
+  <circle class="dotg" r="5"><animateMotion dur="1.2s" repeatCount="indefinite" begin="0.2s"><mpath href="#p5"/></animateMotion></circle>
+  <circle class="dotg" r="5"><animateMotion dur="1.6s" repeatCount="indefinite" begin="0.9s"><mpath href="#p6"/></animateMotion></circle>
+  <circle class="dotg" r="5"><animateMotion dur="2s" repeatCount="indefinite" begin="0.5s"><mpath href="#p7"/></animateMotion></circle>
+
+  <!-- pulse on worker -->
+  <rect x="320" y="118" width="200" height="124" rx="12" fill="none" stroke="#f96302" stroke-width="2" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;0.05;0.6" dur="2.4s" repeatCount="indefinite"/>
+  </rect>
+</svg>

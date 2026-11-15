@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 230" width="960" height="230" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#11141b"/><stop offset="1" stop-color="#0b0d12"/></linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5b6273"/></marker>
+    <style>
+      .t{fill:#e8eaf0;font-size:14px;font-weight:700}
+      .p{fill:#e8eaf0;font-size:22px;font-weight:800}
+      .s{fill:#8b93a7;font-size:11.5px}
+      .tag{fill:#f6d35b}
+      .path{fill:none;stroke:#3a4150;stroke-width:2;marker-end:url(#arr)}
+    </style>
+  </defs>
+  <rect width="960" height="230" fill="url(#bg)" rx="16"/>
+  <text class="t" x="30" y="34" font-size="17">A clearance item's life — and where the tracker catches it</text>
+
+  <!-- stage cards -->
+  <g transform="translate(30,60)">
+    <rect width="170" height="130" rx="12" fill="#171a22" stroke="#2a2f3a"/>
+    <rect x="14" y="14" width="142" height="40" rx="4" class="tag"/>
+    <text class="p" x="85" y="43" text-anchor="middle" fill="#111">$499.00</text>
+    <text class="t" x="85" y="80" text-anchor="middle">Full price</text>
+    <text class="s" x="85" y="100" text-anchor="middle">normal shelf price</text>
+    <text class="s" x="85" y="116" text-anchor="middle" fill="#5b6273">score 0</text>
+  </g>
+  <g transform="translate(225,60)">
+    <rect width="170" height="130" rx="12" fill="#171a22" stroke="#2a2f3a"/>
+    <rect x="14" y="14" width="142" height="40" rx="4" class="tag"/>
+    <text class="p" x="85" y="43" text-anchor="middle" fill="#111">$249.00</text>
+    <text class="t" x="85" y="80" text-anchor="middle">1st markdown</text>
+    <text class="s" x="85" y="100" text-anchor="middle">yellow tag, WAS price + date</text>
+    <text class="s" x="85" y="116" text-anchor="middle" fill="#5b6273">score ~15 · logged</text>
+  </g>
+  <g transform="translate(420,60)">
+    <rect width="170" height="130" rx="12" fill="#171a22" stroke="#2a2f3a"/>
+    <rect x="14" y="14" width="142" height="40" rx="4" class="tag"/>
+    <text class="p" x="85" y="43" text-anchor="middle" fill="#111">$31.03</text>
+    <text class="t" x="85" y="80" text-anchor="middle">Deep clearance</text>
+    <text class="s" x="85" y="100" text-anchor="middle">94% off · weeks on shelf</text>
+    <text class="s" x="85" y="116" text-anchor="middle" fill="#ff4d4d">score 70+ · GO SCAN</text>
+    <rect width="170" height="130" rx="12" fill="none" stroke="#ff4d4d" stroke-width="2">
+      <animate attributeName="opacity" values="1;0.1;1" dur="1.6s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  <g transform="translate(615,60)">
+    <rect width="170" height="130" rx="12" fill="#171a22" stroke="#2a2f3a"/>
+    <rect x="14" y="14" width="142" height="40" rx="4" fill="#2a2f3a"/>
+    <text class="p" x="85" y="43" text-anchor="middle" fill="#8b93a7">$499.00</text>
+    <text class="t" x="85" y="80" text-anchor="middle">ZMA flip (online)</text>
+    <text class="s" x="85" y="100" text-anchor="middle">back to full + "unavailable"</text>
+    <text class="s" x="85" y="116" text-anchor="middle" fill="#ff4d4d">+40 · likely pennied</text>
+  </g>
+  <g transform="translate(810,60)">
+    <rect width="120" height="130" rx="12" fill="#171a22" stroke="#f96302"/>
+    <text class="p" x="60" y="48" text-anchor="middle" fill="#f96302">$0.01</text>
+    <text class="t" x="60" y="80" text-anchor="middle">Penny</text>
+    <text class="s" x="60" y="100" text-anchor="middle">only at the register</text>
+    <text class="s" x="60" y="116" text-anchor="middle">scan the UPC</text>
+  </g>
+
+  <path class="path" d="M200,125 L225,125"/>
+  <path class="path" d="M395,125 L420,125"/>
+  <path class="path" d="M590,125 L615,125"/>
+  <path class="path" d="M785,125 L810,125"/>
+  <text class="s" x="480" y="214" text-anchor="middle">Nothing online ever shows $0.01 — the tracker's job is to tell you when to go scan, not to confirm the penny.</text>
+</svg>
