@@ -167,4 +167,13 @@ stock, don't argue with the cashier.
 
 ## License
 
-MIT – see [LICENSE](LICENSE).
+MIT – see [LICENSE](LICENSE.md).
+
+---
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/signature-light.png">
+    <img src="assets/signature-dark.png" alt="Alejandro Gomez" width="360">
+  </picture>
+</p>

@@ -20,5 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-
-                                            — 𝒜𝓁𝑒𝒿𝒶𝓃𝒹𝓇𝑜 𝒢𝑜𝓂𝑒𝓏
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/signature-light.png">
+    <img src="assets/signature-dark.png" alt="Alejandro Gomez" width="420">
+  </picture>
+</p>
