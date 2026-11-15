@@ -1,97 +1,296 @@
-"""Dashboard + JSON API. One HTML page, live updates over Server-Sent Events."""
+"""Dashboard + JSON API. One HTML page, live updates over Server-Sent Events.
+
+Interactive docs: /docs (Swagger) and /redoc.
+"""
 from __future__ import annotations
 
 import asyncio
 import json
+import threading
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal, Optional
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
+from . import __version__
 from .detect import score_history
 from .settings import append_watchlist, settings
 from .storage import get_storage
 
-app = FastAPI(title="HD Penny Tracker")
 INDEX = Path(__file__).parent.parent / "web" / "index.html"
 
+app = FastAPI(
+    title="HD Penny Tracker",
+    version=__version__,
+    description="Store-level Home Depot clearance tracker: price history, penny score, alerts.",
+    openapi_tags=[
+        {"name": "items", "description": "Products on the watchlist and their latest price per store."},
+        {"name": "alerts", "description": "Scored alerts created by detect.py."},
+        {"name": "jobs", "description": "Trigger scrape / detect / community runs in the background."},
+        {"name": "system", "description": "Health, stores, run history, live stream."},
+    ],
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # the dashboard may be hosted elsewhere (Vercel); the API is read-mostly
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["*"],
+)
 
-def _items() -> list[dict]:
+
+# ---------------------------------------------------------------------------
+# schemas
+# ---------------------------------------------------------------------------
+class Store(BaseModel):
+    id: int
+    hd_store_id: str = Field(examples=["6381"])
+    name: str
+    city: Optional[str] = None
+    zip: Optional[str] = None
+
+
+class HistoryPoint(BaseModel):
+    t: str = Field(description="ISO timestamp of the observation")
+    p: float = Field(description="price")
+
+
+class Item(BaseModel):
+    product_id: int
+    store_id: int
+    internet_number: str
+    sku: Optional[str] = None
+    name: Optional[str] = None
+    brand: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    image_url: Optional[str] = None
+    product_url: Optional[str] = None
+    hd_store_id: str
+    store_name: str
+    price: Optional[float] = None
+    original_price: Optional[float] = None
+    discount_pct: Optional[float] = None
+    stock: Optional[int] = None
+    availability: Optional[str] = None
+    scraped_at: str
+    score: int = Field(ge=0, le=100)
+    reasons: list[str]
+    history_points: list[HistoryPoint]
+
+
+class PriceRow(BaseModel):
+    price: Optional[float] = None
+    original_price: Optional[float] = None
+    discount_pct: Optional[float] = None
+    stock: Optional[int] = None
+    availability: Optional[str] = None
+    scraped_at: str
+
+
+class Alert(BaseModel):
+    id: int
+    product_id: int
+    store_id: int
+    internet_number: str
+    name: Optional[str] = None
+    hd_store_id: str
+    store_name: str
+    score: int
+    reasons: list[str]
+    message: str
+    sent: bool
+    created_at: str
+
+
+class Run(BaseModel):
+    id: int
+    job: str
+    started_at: str
+    finished_at: Optional[str] = None
+    ok: Optional[bool] = None
+    detail: Optional[str] = None
+
+
+class AddResult(BaseModel):
+    internet_number: str
+    added: bool = Field(description="False if it was already on the watchlist")
+
+
+class JobResult(BaseModel):
+    job: Literal["scrape", "detect", "community"]
+    status: Literal["started", "already_running"]
+
+
+class Health(BaseModel):
+    status: Literal["ok"]
+    version: str
+    database_mode: str
+    products: int
+    stores: int
+    last_scrape: Optional[str] = None
+    time: str
+
+
+# ---------------------------------------------------------------------------
+# helpers
+# ---------------------------------------------------------------------------
+def _items(store: Optional[str] = None, min_score: int = 0, q: Optional[str] = None) -> list[dict]:
     db = get_storage()
-    rows = db.latest_prices()
     out = []
-    for r in rows:
+    ql = (q or "").lower()
+    for r in db.latest_prices():
+        if store and r["hd_store_id"] != store:
+            continue
+        if ql and ql not in f"{r.get('name')} {r.get('brand')} {r['internet_number']} {r.get('sku')}".lower():
+            continue
         hist = db.history(r["product_id"], r["store_id"])
         reports = db.recent_reports(r["internet_number"])
         score, reasons = score_history(hist, r.get("category"), reports)
+        if score < min_score:
+            continue
         r = dict(r)
         r.pop("raw", None)
-        r["score"] = score
-        r["reasons"] = reasons
+        r["score"], r["reasons"] = score, reasons
         r["history_points"] = [{"t": h["scraped_at"], "p": h["price"]} for h in hist if h.get("price") is not None]
         out.append(r)
     out.sort(key=lambda x: (-x["score"], -(x.get("discount_pct") or 0)))
     return out
 
 
-@app.get("/", response_class=HTMLResponse)
+def _valid_number(n: str) -> str:
+    if not n.isdigit() or len(n) not in (9, 10):
+        raise HTTPException(400, "internet number must be 9 or 10 digits")
+    return n
+
+
+_running: set[str] = set()
+_lock = threading.Lock()
+
+
+def _run_job(job: str) -> None:
+    try:
+        if job == "scrape":
+            from .scraper import scrape_all
+            scrape_all()
+            from .detect import run
+            run()
+        elif job == "detect":
+            from .detect import run
+            run()
+        elif job == "community":
+            from .community import refresh
+            refresh()
+    finally:
+        with _lock:
+            _running.discard(job)
+
+
+# ---------------------------------------------------------------------------
+# routes
+# ---------------------------------------------------------------------------
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def index():
     return INDEX.read_text()
 
 
-@app.get("/api/items")
-def api_items():
-    return JSONResponse(_items())
+@app.get("/api/health", response_model=Health, tags=["system"])
+def health():
+    db = get_storage()
+    runs = [r for r in db.last_runs(50) if r["job"] == "scrape" and r.get("finished_at")]
+    return Health(status="ok", version=__version__, database_mode=settings.database_mode,
+                  products=len(db.products()), stores=len(db.stores()),
+                  last_scrape=runs[0]["finished_at"] if runs else None,
+                  time=datetime.now(timezone.utc).isoformat(timespec="seconds"))
 
 
-@app.get("/api/stores")
+@app.get("/api/stores", response_model=list[Store], tags=["system"])
 def api_stores():
-    return JSONResponse(get_storage().stores())
+    return get_storage().stores()
 
 
-@app.get("/api/alerts")
-def api_alerts():
-    rows = get_storage().alerts()
+@app.get("/api/runs", response_model=list[Run], tags=["system"])
+def api_runs(limit: int = Query(20, ge=1, le=200)):
+    rows = get_storage().last_runs(limit)
     for r in rows:
+        r["ok"] = None if r["ok"] is None else bool(r["ok"])
+    return rows
+
+
+@app.get("/api/items", response_model=list[Item], tags=["items"])
+def api_items(
+    store: Optional[str] = Query(None, description="hd_store_id, e.g. 6381"),
+    min_score: int = Query(0, ge=0, le=100),
+    q: Optional[str] = Query(None, description="text search on name / brand / internet number / sku"),
+):
+    return _items(store, min_score, q)
+
+
+@app.get("/api/history/{internet_number}", response_model=dict[str, list[PriceRow]], tags=["items"])
+def api_history(internet_number: str, days: int = Query(120, ge=1, le=730)):
+    db = get_storage()
+    p = db.product_by_internet_number(_valid_number(internet_number))
+    if not p:
+        raise HTTPException(404, "unknown product")
+    return {s["hd_store_id"]: db.history(p["id"], s["id"], days) for s in db.stores()}
+
+
+@app.post("/api/items/{internet_number}", response_model=AddResult, status_code=201, tags=["items"])
+def api_add(internet_number: str, category: str = "", note: str = ""):
+    n = _valid_number(internet_number)
+    added = append_watchlist(n, category, note, "manual")
+    get_storage().upsert_product(n, category=category or None, source="manual", active=1)
+    return AddResult(internet_number=n, added=added)
+
+
+@app.delete("/api/items/{internet_number}", response_model=AddResult, tags=["items"])
+def api_remove(internet_number: str):
+    """Stop tracking an item. History is kept; the product is marked inactive."""
+    db = get_storage()
+    n = _valid_number(internet_number)
+    if not db.product_by_internet_number(n):
+        raise HTTPException(404, "unknown product")
+    db.upsert_product(n, active=0)
+    return AddResult(internet_number=n, added=False)
+
+
+@app.get("/api/alerts", response_model=list[Alert], tags=["alerts"])
+def api_alerts(limit: int = Query(100, ge=1, le=1000), min_score: int = Query(0, ge=0, le=100)):
+    out = []
+    for r in get_storage().alerts(limit):
+        if r["score"] < min_score:
+            continue
         try:
             r["reasons"] = json.loads(r.get("reasons") or "[]")
         except Exception:
             r["reasons"] = []
-    return JSONResponse(rows)
+        r["sent"] = bool(r["sent"])
+        out.append(r)
+    return out
 
 
-@app.get("/api/runs")
-def api_runs():
-    return JSONResponse(get_storage().last_runs())
+@app.post("/api/jobs/{job}", response_model=JobResult, status_code=202, tags=["jobs"])
+def api_job(job: Literal["scrape", "detect", "community"], bg: BackgroundTasks):
+    """Start a job in the background. `scrape` also runs `detect` when it finishes."""
+    with _lock:
+        if job in _running:
+            return JobResult(job=job, status="already_running")
+        _running.add(job)
+    bg.add_task(_run_job, job)
+    return JobResult(job=job, status="started")
 
 
-@app.get("/api/history/{internet_number}")
-def api_history(internet_number: str):
-    db = get_storage()
-    p = db.product_by_internet_number(internet_number)
-    if not p:
-        raise HTTPException(404, "unknown product")
-    return JSONResponse({s["hd_store_id"]: db.history(p["id"], s["id"]) for s in db.stores()})
-
-
-@app.post("/api/items/{internet_number}")
-def api_add(internet_number: str, category: str = "", note: str = ""):
-    if not internet_number.isdigit() or len(internet_number) not in (9, 10):
-        raise HTTPException(400, "internet number must be 9 or 10 digits")
-    added = append_watchlist(internet_number, category, note, "manual")
-    get_storage().upsert_product(internet_number, category=category or None, source="manual")
-    return {"added": added, "internet_number": internet_number}
-
-
-@app.get("/stream")
+@app.get("/stream", tags=["system"],
+         description="Server-Sent Events. Emits an `items` event with the full item list whenever new prices land.")
 async def stream():
-    """Pushes the full item list whenever the newest price_history id changes."""
     async def gen():
         last = None
         while True:
-            db = get_storage()
-            rows = db._q("SELECT MAX(id) AS m FROM price_history")
+            rows = get_storage()._q("SELECT MAX(id) AS m FROM price_history")
             cur = rows[0]["m"] if rows else None
             if cur != last:
                 last = cur
