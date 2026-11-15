@@ -1,0 +1,11 @@
+.env
+data/*.db
+data/*.db-journal
+data/session.json
+data/*.log
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.playwright/

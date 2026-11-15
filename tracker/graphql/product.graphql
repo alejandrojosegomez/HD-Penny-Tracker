@@ -1,0 +1,59 @@
+# Minimal field set for the productClientOnlyProduct operation.
+# If Home Depot changes the schema: open a product page with DevTools > Network,
+# filter "graphql", copy the productClientOnlyProduct request body and replace this query.
+query productClientOnlyProduct($itemId: String!, $storeId: String, $zipCode: String) {
+  product(itemId: $itemId, dataSource: "catalog") {
+    itemId
+    identifiers {
+      storeSkuNumber
+      upc
+      modelNumber
+      brandName
+      productLabel
+      productType
+      canonicalUrl
+    }
+    details {
+      description
+    }
+    media {
+      images {
+        url
+        sizes
+      }
+    }
+    pricing(storeId: $storeId) {
+      value
+      original
+      promotion {
+        percentageOff
+        dollarOff
+      }
+      message
+    }
+    fulfillment(storeId: $storeId, zipCode: $zipCode) {
+      fulfillmentOptions {
+        type
+        fulfillable
+        services {
+          type
+          locations {
+            isAnchor
+            locationId
+            inventory {
+              quantity
+              isInStock
+              isLimitedQuantity
+              isOutOfStock
+              isUnavailable
+            }
+          }
+        }
+      }
+    }
+    availabilityType {
+      type
+      discontinued
+    }
+  }
+}

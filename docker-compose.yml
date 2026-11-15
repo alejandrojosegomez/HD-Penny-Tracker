@@ -1,0 +1,22 @@
+services:
+  worker:
+    build: .
+    container_name: hd-penny-worker
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    command: python -m tracker run
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: hd-penny-web
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    command: python -m tracker serve
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

@@ -1,0 +1,21 @@
+# Home Depot stores to track. storeId is the 4-digit store number.
+stores:
+  - store_id: "0260"
+    name: "West Melbourne"
+    city: "West Melbourne, FL"
+    zip: "32904"
+  - store_id: "6381"
+    name: "N Melbourne (Wickham)"
+    city: "Melbourne, FL"
+    zip: "32940"
+  - store_id: "6336"
+    name: "Palm Bay"
+    city: "Palm Bay, FL"
+    zip: "32907"
+  - store_id: "0430"
+    name: "Viera / Rockledge"
+    city: "Rockledge, FL"
+    zip: "32955"
+
+# categories treated as seasonal for the scoring bonus
+seasonal_categories: [patio, grills, outdoor, holiday, christmas, halloween, garden, pool]
