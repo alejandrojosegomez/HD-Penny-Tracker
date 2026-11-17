@@ -32,36 +32,50 @@ jobs:
           cache: pip
           cache-dependency-path: brain/requirements.txt
 
-      - run: pip install -r brain/requirements.txt
+      - name: Install
+        id: install
+        run: pip install -r brain/requirements.txt
 
       - name: Simulated failure (test only)
+        id: simulated
         if: ${{ inputs.simulate_failure }}
         run: echo "::error::Simulated failure to test the Slack alert" && exit 1
 
       - name: Collect, train, report
+        id: brain
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python -m brain.run
+        run: python -m brain.run 2>&1 | tee brain_run.log
 
       - name: Save what the brain learned
+        id: save
         if: always()
         run: |
-          git config user.name "penny-brain[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add brain
-          git diff --cached --quiet && echo "nothing new" && exit 0
-          git commit -m "brain: daily update $(date +%F)"
-          for i in 1 2 3; do git pull --rebase --autostash -X theirs && git push && exit 0; sleep 10; done
-          exit 1
+          set -o pipefail
+          (
+            set -e
+            git config user.name "penny-brain[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add brain
+            if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+            git commit -m "brain: daily update $(date +%F)"
+            for i in 1 2 3; do
+              if git pull --rebase --autostash -X theirs && git push; then exit 0; fi
+              sleep 10
+            done
+            echo "::error::could not push the daily update after 3 tries"
+            exit 1
+          ) 2>&1 | tee save.log
 
       - name: Alert Slack on failure
         if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          [ -z "$SLACK_WEBHOOK_URL" ] && echo "no Slack webhook configured" && exit 0
-          msg=":rotating_light: *Penny Brain fallo hoy* ($(date +%F)). <$RUN_URL|Ver el error en GitHub>"
-          curl -sS -X POST -H 'Content-type: application/json' --data "{\"text\":\"$msg\"}" "$SLACK_WEBHOOK_URL"
+          OUT_INSTALL: ${{ steps.install.outcome }}
+          OUT_SIMULATED: ${{ steps.simulated.outcome }}
+          OUT_BRAIN: ${{ steps.brain.outcome }}
+          OUT_SAVE: ${{ steps.save.outcome }}
+        run: python -m brain.alert

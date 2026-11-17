@@ -17,4 +17,4 @@ jobs:
           cache: pip
           cache-dependency-path: brain/requirements.txt
       - run: pip install -r brain/requirements.txt pytest
-      - run: python -m pytest -q tests/test_brain.py tests/test_brain_e2e.py -W ignore::UserWarning
+      - run: python -m pytest -q tests/test_brain.py tests/test_brain_e2e.py tests/test_brain_alert.py -W ignore::UserWarning
