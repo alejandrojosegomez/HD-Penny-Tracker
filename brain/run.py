@@ -84,12 +84,20 @@ def main() -> int:
     except ImportError:
         pass
 
-    con = brain.connect()
-    counts = community.collect(con)
-    rep = brain.run_daily(con)
-    tg, md = build(con, counts, rep)
-
-    dashboard.render(con, counts, rep)
+    prog = notify.Progress(enabled=not args.no_send)
+    prog.start("Procesando datos del día")
+    try:
+        con = brain.connect()
+        prog.step("Juntando listas de la comunidad")
+        counts = community.collect(con)
+        prog.step("Leyendo tus escaneos y entrenando la red")
+        rep = brain.run_daily(con)
+        prog.step("Generando el reporte")
+        tg, md = build(con, counts, rep)
+        dashboard.render(con, counts, rep)
+    except Exception as e:
+        prog.finish(f"❌ La actualización falló: {type(e).__name__}: {str(e)[:200]}", ok=False)
+        raise
     with open(ROOT / "predictions.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["date", "probability_fl_14d", "sku", "name"])
@@ -99,6 +107,9 @@ def main() -> int:
     print(tg)
     sent = True
     if not args.no_send:
+        days = rep.get("snapshot_days", 0)
+        prog.finish(f"✅ Actualización lista · día {days}"
+                    + (" · 🧠 red entrenada" if rep.get("trained") else f" de {brain.HORIZON_DAYS + 1}"))
         sent = notify.send(tg[:4000])
         if not sent:
             print("::error::Telegram message was not delivered (check TELEGRAM_TOKEN / TELEGRAM_CHAT_ID secrets)")
