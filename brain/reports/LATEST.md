@@ -1,29 +1,49 @@
-# Reporte del cerebro — 2026-11-17
+# 🧠 Reporte del cerebro — 2026-11-17
 
-- Productos en la base: **418** (28 nuevos hoy)
-- Fuentes: pennyrecon 310, paydirt 262, ppm 67
-- Estado del modelo: collecting data: 3 days of snapshots, 0 labeled examples (0 reached FL). Needs >= 15 days and >= 10 of each class.
+[← Panel](../README.md) · [Todos los reportes](README.md)
 
-## 🧠 Red neuronal
+| Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Tus escaneos |
+|:-:|:-:|:-:|:-:|:-:|
+| **418** | **28** | **272** | **34** | **0** |
 
-- Juntando datos: día 3 de ~15 (0 ejemplos listos)
-- Tus escaneos guardados: 0
+**Red neuronal:** 🟡 Juntando datos · día **3 de 15**
 
-## 📍 Reportados en Florida (7 días)
+## 📍 Reportados en Florida (últimos 7 días)
 
-- DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray $20 — SKU 1015277793 · 14 reportes
-- RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh F $199 — SKU 1009074829 · 238 reportes
-- Husky 800 Lumen LED Rechargeable Detachable Tripod Work $20 — SKU 1012388248 · 107 reportes
-- Wireless TV Headphones in Black $36 — SKU 1003565875 · 45 reportes
-- Milwaukee 20-32 AWG Low Voltage Wire Stripper/Cutter wi $22 — SKU 1010362919 · 23 reportes
-- Smart Lighting White Motion Activated Outdoor Integrate $40 — SKU 1004296682 · 10 reportes
-- Sedgewood 24.5 in. W x 18.75 in. D x 34.375 in. H Singl $359 — SKU 1003619907 · 7 reportes
-- Maxfit Modular 3/8 in. Drive Right Angle Attachment $25 — SKU 1008778891 · 5 reportes
+| # | Producto | SKU | Precio | Reportes | Fuentes |
+|--:|---|---|--:|--:|:-:|
+| 1 | [DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray Poly…](https://www.homedepot.com/s/1015277793) | `1015277793` | $20 | 14 | 2 |
+| 2 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 238 | 2 |
+| 3 | [Husky 800 Lumen LED Rechargeable Detachable Tripod Work Ligh…](https://www.homedepot.com/s/1012388248) | `1012388248` | $20 | 107 | 2 |
+| 4 | [Wireless TV Headphones in Black](https://www.homedepot.com/s/1003565875) | `1003565875` | $36 | 45 | 2 |
+| 5 | [Milwaukee 20-32 AWG Low Voltage Wire Stripper/Cutter with Di…](https://www.homedepot.com/s/1010362919) | `1010362919` | $22 | 23 | 2 |
+| 6 | [Smart Lighting White Motion Activated Outdoor Integrated LED…](https://www.homedepot.com/s/1004296682) | `1004296682` | $40 | 10 | 2 |
+| 7 | [Sedgewood 24.5 in. W x 18.75 in. D x 34.375 in. H Single Sin…](https://www.homedepot.com/s/1003619907) | `1003619907` | $359 | 7 | 2 |
+| 8 | [Maxfit Modular 3/8 in. Drive Right Angle Attachment](https://www.homedepot.com/s/1008778891) | `1008778891` | $25 | 5 | 2 |
+| 9 | [Milwaukee Black Cut Level 1 Nitrile Dipped Gloves-L](https://www.homedepot.com/s/1015399905) | `1015399905` | $25 | 5 | 2 |
+| 10 | [Milwaukee Black Cut Level 1 Nitrile Dipped Gloves-XL](https://www.homedepot.com/s/1015399906) | `1015399906` | $25 | 4 | 2 |
 
-## 🔥 Más fuertes en todo el país
+## 🔥 Más fuertes en todo el país (7 días)
 
-- Home Decorators Collection Alberson 5 in. Brushed Nicke $100 — SKU 1004871058 · 15 reportes
-- DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray $20 — SKU 1015277793 · 14 reportes
-- DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocat $20 — SKU 1013121020 · 3 reportes
-- RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh F $199 — SKU 1009074829 · 238 reportes
-- Husky 800 Lumen LED Rechargeable Detachable Tripod Work $20 — SKU 1012388248 · 107 reportes
+| # | Producto | SKU | Precio | Reportes | Fuentes | Estados |
+|--:|---|---|--:|--:|:-:|---|
+| 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | $100 | 15 | 2 | AL, CA, GA, KS, NC, NJ +5 |
+| 2 | [DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray Poly…](https://www.homedepot.com/s/1015277793) | `1015277793` | $20 | 14 | 2 | AK, CA, **FL**, IL, KS, NH +5 |
+| 3 | [DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating S…](https://www.homedepot.com/s/1013121020) | `1013121020` | $20 | 3 | 2 | CO, GA, LA |
+| 4 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 238 | 2 | AL, AZ, CA, CO, CT, **FL** +26 |
+| 5 | [Husky 800 Lumen LED Rechargeable Detachable Tripod Work Ligh…](https://www.homedepot.com/s/1012388248) | `1012388248` | $20 | 107 | 2 | AL, CA, CO, CT, **FL**, GA +19 |
+| 6 | [Wireless TV Headphones in Black](https://www.homedepot.com/s/1003565875) | `1003565875` | $36 | 45 | 2 | CA, **FL**, IL, KY, MA, MD +9 |
+| 7 | [Milwaukee 20-32 AWG Low Voltage Wire Stripper/Cutter with Di…](https://www.homedepot.com/s/1010362919) | `1010362919` | $22 | 23 | 2 | CA, CT, **FL**, IL, IN, LA +9 |
+| 8 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | $70 | 18 | 2 | CA, CT, IL, LA, MN, NC +6 |
+| 9 | [Hampton Bay Conyer 20 in. Indoor/Wet Outdoor 3-Speed Anywher…](https://www.homedepot.com/s/1009872069) | `1009872069` | $100 | 11 | 2 | CA, GA, NV, TX |
+| 10 | [Smart Lighting White Motion Activated Outdoor Integrated LED…](https://www.homedepot.com/s/1004296682) | `1004296682` | $40 | 10 | 2 | CA, **FL**, GA, IL, IN, MA +3 |
+
+## 🌐 Fuentes
+
+| Fuente | Estado | Productos |
+|---|:-:|--:|
+| PennyRecon | ✅ | 310 |
+| Paydirt | ✅ | 262 |
+| Penny Pinchin' Mom | ✅ | 67 |
+
+<sub>Generado automáticamente por GitHub Actions. Los enlaces abren la búsqueda del SKU en homedepot.com.</sub>

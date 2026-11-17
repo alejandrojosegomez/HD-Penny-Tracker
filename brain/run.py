@@ -7,7 +7,8 @@ Writes (and the workflow commits back to the repo):
   brain/state/brain.db            community reports, daily snapshots, your scan outcomes
   brain/state/model.joblib        the trained neural network (once there is enough data)
   brain/state/model_report.json   last training report
-  brain/reports/YYYY-MM-DD.md     the day's analysis report
+  brain/README.md                 dashboard (see dashboard.py)
+  brain/reports/YYYY/MM/DATE.md   the day's analysis report
   brain/reports/LATEST.md         copy of the newest report
   brain/predictions.csv           today's ranked predictions (for other components to read)
 """
@@ -19,7 +20,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from . import brain, community, notify
+from . import brain, community, dashboard, notify
 
 ROOT = Path(__file__).parent
 REPORTS = ROOT / "reports"
@@ -88,9 +89,7 @@ def main() -> int:
     rep = brain.run_daily(con)
     tg, md = build(con, counts, rep)
 
-    REPORTS.mkdir(exist_ok=True)
-    (REPORTS / f"{date.today().isoformat()}.md").write_text(md, encoding="utf-8")
-    (REPORTS / "LATEST.md").write_text(md, encoding="utf-8")
+    dashboard.render(con, counts, rep)
     with open(ROOT / "predictions.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["date", "probability_fl_14d", "sku", "name"])
