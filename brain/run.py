@@ -15,6 +15,7 @@ Writes (and the workflow commits back to the repo):
 from __future__ import annotations
 
 import argparse
+import html
 import csv
 import sys
 from datetime import date
@@ -74,6 +75,49 @@ def build(con, counts: dict, rep: dict) -> tuple[str, str]:
     return "\n".join(tg), "\n".join(md)
 
 
+def caption(con, counts: dict, rep: dict, limit: int = 1024) -> str:
+    """Compact HTML summary that fits in a Telegram caption (1024 chars)."""
+    e = html.escape
+    hot = community.hottest(con, days=7, limit=40)
+    fl = [r for r in hot if r["states"] and "FL" in r["states"].split(",")]
+    total = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports").fetchone()[0]
+    new = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports "
+                      "WHERE date(first_collected) = date('now')").fetchone()[0]
+    days = rep.get("snapshot_days", 0)
+    target = brain.HORIZON_DAYS + 1
+
+    def item(r, n=34):
+        name = (r["name"] or "")[:n].rstrip()
+        price = f" ${r['retail']:.0f}" if r["retail"] else ""
+        return f"• {e(name)}{price}\n   <code>{r['sku']}</code> · {r['reports']} rep."
+
+    head = [f"✅ <b>Actualización lista</b> · día {days}"
+            + ("" if rep.get("trained") else f" de {target}"),
+            f"📦 {total} productos · {new} nuevos hoy", ""]
+    if rep.get("trained"):
+        brain_l = [f"🧠 <b>Red entrenada</b> · AUC {rep['cv_auc']}"]
+        brain_l += [f"🔮 {p*100:.0f}% {e(n[:30])} <code>{s}</code>" for p, s, n in rep["predictions"][:3]]
+    else:
+        filled = round(10 * min(days, target) / target)
+        brain_l = [f"🧠 Aprendiendo {'▰' * filled}{'▱' * (10 - filled)} {min(days, target)}/{target}"]
+    brain_l.append(f"📝 Escaneos: {rep['total_outcomes']}"
+                   + (f" (+{len(rep['new_outcomes'])} hoy)" if rep["new_outcomes"] else ""))
+    failed = [k for k, v in counts.items() if v == -1]
+    tail = brain_l + ([f"⚠️ Fuentes con error: {', '.join(failed)}"] if failed else []) \
+        + ["", "<i>/penny SKU tienda · /no SKU tienda</i>"]
+
+    for n_fl, n_top in ((5, 3), (4, 2), (3, 2), (3, 1), (2, 0), (1, 0)):
+        body = []
+        if fl:
+            body += ["📍 <b>En Florida (7 días)</b>"] + [item(r) for r in fl[:n_fl]] + [""]
+        if n_top:
+            body += ["🔥 <b>Más fuertes del país</b>"] + [item(r) for r in hot[:n_top]] + [""]
+        text = "\n".join(head + body + tail)
+        if len(text) <= limit:
+            return text
+    return "\n".join(head + tail)[:limit]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-send", action="store_true")
@@ -107,10 +151,7 @@ def main() -> int:
     print(tg)
     sent = True
     if not args.no_send:
-        days = rep.get("snapshot_days", 0)
-        prog.finish(f"✅ Actualización lista · día {days}"
-                    + (" · 🧠 red entrenada" if rep.get("trained") else f" de {brain.HORIZON_DAYS + 1}"))
-        sent = notify.send(tg[:4000])
+        sent = prog.finish(caption(con, counts, rep))
         if not sent:
             print("::error::Telegram message was not delivered (check TELEGRAM_TOKEN / TELEGRAM_CHAT_ID secrets)")
     # every source failing means the run learned nothing new: fail the job so you see it

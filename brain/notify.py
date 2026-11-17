@@ -62,13 +62,25 @@ class Progress:
             _api("editMessageCaption", message_id=self.msg_id,
                  caption=f"⏳ {self.title}\n\n" + "\n".join(lines))
 
-    def finish(self, caption: str, ok: bool = True):
+    def finish(self, caption: str, ok: bool = True) -> bool:
+        """Turns the spinning-penny message into the final one: done animation + summary
+        as its caption, all in a single Telegram bubble. Returns True if delivered."""
         if not self.enabled:
-            return
+            return True
+        if not ok:
+            if self.msg_id:
+                _api("deleteMessage", message_id=self.msg_id)
+            return _api("sendMessage", text=caption) is not None
+        import json
         if self.msg_id:
-            _api("deleteMessage", message_id=self.msg_id)
-        if ok:
             with open(ASSETS / "done.gif", "rb") as f:
-                _api("sendAnimation", caption=caption, files={"animation": f})
-        else:
-            _api("sendMessage", text=caption)
+                res = _api("editMessageMedia", message_id=self.msg_id,
+                           media=json.dumps({"type": "animation", "media": "attach://anim",
+                                             "caption": caption, "parse_mode": "HTML"}),
+                           files={"anim": f})
+            if res:
+                return True
+            _api("deleteMessage", message_id=self.msg_id)
+        with open(ASSETS / "done.gif", "rb") as f:
+            return _api("sendAnimation", caption=caption, parse_mode="HTML",
+                        files={"animation": f}) is not None
