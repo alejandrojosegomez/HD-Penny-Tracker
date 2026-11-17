@@ -158,6 +158,10 @@ def main() -> int:
     ok_sources = [v for k, v in counts.items() if not k.startswith("_") and v != -1]
     if not ok_sources:
         print("::error::every community source failed today")
+    failed = [k for k, v in counts.items() if v == -1]
+    if failed and ok_sources:   # partial failure: job stays green, so warn in Slack
+        notify.slack_alert(f":warning: *Penny Brain*: fuentes con error hoy: {', '.join(failed)}. "
+                           "La actualización siguió con las demás.")
     return 0 if ok_sources and sent else 1
 
 

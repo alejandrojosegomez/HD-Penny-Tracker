@@ -84,3 +84,19 @@ class Progress:
         with open(ASSETS / "done.gif", "rb") as f:
             return _api("sendAnimation", caption=caption, parse_mode="HTML",
                         files={"animation": f}) is not None
+
+
+def slack_alert(text: str) -> bool:
+    """Posts a warning to Slack via an incoming webhook (SLACK_WEBHOOK_URL). Optional."""
+    url = os.getenv("SLACK_WEBHOOK_URL")
+    if not url:
+        print(f"[slack dry-run] {text}")
+        return False
+    run = os.getenv("GITHUB_RUN_ID")
+    repo = os.getenv("GITHUB_REPOSITORY")
+    if run and repo:
+        text += f"\n<https://github.com/{repo}/actions/runs/{run}|Ver la ejecución en GitHub>"
+    try:
+        return requests.post(url, json={"text": text}, timeout=15).ok
+    except requests.RequestException:
+        return False
