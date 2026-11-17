@@ -1,0 +1,19 @@
+name: Slack test
+
+on:
+  workflow_dispatch: {}   # Actions -> Slack test -> Run workflow
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send a test alert to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          [ -z "$SLACK_WEBHOOK_URL" ] && echo "::error::SLACK_WEBHOOK_URL secret is missing" && exit 1
+          code=$(curl -sS -o /tmp/out -w '%{http_code}' -X POST -H 'Content-type: application/json' \
+            --data '{"text":":white_check_mark: *Penny Brain*: prueba de alertas. Si ves esto, los avisos de errores llegan a este canal."}' \
+            "$SLACK_WEBHOOK_URL")
+          cat /tmp/out; echo
+          [ "$code" = "200" ] || { echo "::error::Slack answered HTTP $code"; exit 1; }
