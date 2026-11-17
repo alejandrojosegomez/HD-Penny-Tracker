@@ -173,64 +173,47 @@ def render(con, counts: dict, rep: dict) -> None:
                    f"| {_src_cell(h['sources'])} |")
     (REPORTS / "README.md").write_text("\n".join(idx) + "\n", encoding="utf-8")
 
-    # ---- dashboard
-    dash = [
-        "<div align=\"center\">", "",
-        "# 🧠 Penny Brain", "",
-        "**Red neuronal que aprende sola, cada día, qué productos de Home Depot llegarán a penny en Florida.**", "",
-        f"![estado](https://img.shields.io/badge/red_neuronal-{badge})",
-        f"![días](https://img.shields.io/badge/días_de_datos-{days}-blue)",
-        f"![productos](https://img.shields.io/badge/productos-{total}-orange)",
-        f"![escaneos](https://img.shields.io/badge/tus_escaneos-{scans_total}-purple)",
-        "", f"_Última actualización: **{today}** · corre solo todos los días a las 7:00 AM (Florida)_", "",
-        "</div>", "",
-        "---", "",
-        "## 📈 Progreso del aprendizaje", "",
-        f"```text\n{_bar(min(days, TARGET_DAYS), TARGET_DAYS, 30)}  {min(days, TARGET_DAYS)}/{TARGET_DAYS} días\n```", "",
-        state, "",
-        ("La red necesita ~15 días de historia para saber, para cada producto, si 14 días después "
-         "terminó reportado en Florida. Hasta entonces junta datos; después se reentrena cada día."
-         if not rep.get("trained") else rep["status"]), "",
-        "## 📊 Crecimiento", "", *_chart(hist), "",
-        "## 🗓️ Hoy", "",
-        "| Productos en la base | Nuevos hoy | En Florida (14 días) | Tus escaneos |",
-        "|:-:|:-:|:-:|:-:|",
-        f"| **{total}** | **{new}** | **{hist[-1]['fl'] if hist else 0}** | **{scans_total}** |", "",
-        f"📄 [Reporte completo de hoy]({_report_path(today).relative_to(ROOT).as_posix()})", "",
-    ]
-    if preds:
-        dash += ["### 🔮 Predicciones", ""] + _pred_table(preds[:5]) + [""]
-    dash += ["### 📍 En Florida esta semana", ""]
-    dash += (_item_table(fl[:5], with_states=False) if fl else ["_Ninguno esta semana._"]) + [""]
-    dash += ["## 🗂️ Historial", "",
-             "| Día | Productos | Nuevos | Activos | En FL | Escaneos | Fuentes |",
-             "|---|--:|--:|--:|--:|--:|:-:|"]
-    for h in list(reversed(hist))[:10]:
+    # ---- dashboard: one table, one row per day
+    from datetime import timedelta
+
+    trained = rep.get("trained")
+    done = min(days, TARGET_DAYS)
+    rows = ["| Día | Fecha | Estado | Productos | Nuevos | En FL | Escaneos | Reporte |",
+            "|:-:|---|---|--:|--:|--:|--:|:-:|"]
+    for i, h in enumerate(hist, 1):
+        if i == len(hist) and trained:
+            st = f"🧠 entrenada · AUC {rep['cv_auc']}"
+        elif i >= TARGET_DAYS:
+            st = "🧠 aprendiendo"
+        else:
+            st = "✅ listo" if all(v != -1 for v in h["sources"].values()) else "⚠️ fuente con error"
         p = _report_path(h["date"])
-        link = f"[{h['date']}]({p.relative_to(ROOT).as_posix()})" if p.exists() else h["date"]
-        dash.append(f"| {link} | {h['total']} | {h['new']} | {h['active']} | {h['fl']} | {h['scans']} "
-                    f"| {_src_cell(h['sources'])} |")
-    dash += ["", "📚 [Ver todos los reportes](reports/README.md)", "",
-             "---", "",
-             "## ⚙️ Cómo funciona", "",
-             "```mermaid",
-             "flowchart LR",
-             "  A[🌐 Listas de la comunidad<br/>PennyRecon · Paydirt · PPM] --> B[(🗄️ brain.db)]",
-             "  T[📱 Tus /penny y /no<br/>en Telegram] --> B",
-             "  B --> C[📸 Foto diaria<br/>de cada producto]",
-             "  C --> D[🧠 Red neuronal<br/>se reentrena]",
-             "  D --> E[🔮 Predicciones]",
-             "  E --> F[📄 Reportes en GitHub]",
-             "  E --> G[📱 Resumen en Telegram]",
-             "```", "",
-             "Reporta tus escaneos al bot: `/penny SKU tienda` o `/no SKU tienda` "
-             "(ej. `/penny 1015277793 0260`). Cada escaneo le enseña a la red.", "",
-             "| Carpeta / archivo | Qué es |", "|---|---|",
-             "| [`brain.py`](brain.py) | la red neuronal: fotos, etiquetas, entrenamiento, predicción |",
-             "| [`community.py`](community.py) | lectores de las listas de la comunidad |",
-             "| [`run.py`](run.py) · [`dashboard.py`](dashboard.py) | el proceso diario y estas páginas |",
-             "| [`reports/`](reports/README.md) | un reporte por día, por año/mes |",
-             "| [`predictions.csv`](predictions.csv) | ranking de hoy, para otras partes del proyecto |",
-             "| `state/` | base de datos y modelo (los actualiza el bot) |", "",
-             "Correr a mano: pestaña **Actions → Brain daily → Run workflow**.", ""]
+        link = f"[ver]({p.relative_to(ROOT).as_posix()})" if p.exists() else "—"
+        rows.append(f"| {i} | {h['date']} | {st} | {h['total']} | {h['new']} | {h['fl']} "
+                    f"| {h['scans']} | {link} |")
+    last = date.fromisoformat(hist[-1]["date"]) if hist else date.today()
+    upcoming = max(TARGET_DAYS - days, 1)          # until first training, then just tomorrow
+    for k in range(1, upcoming + 1):
+        n = days + k
+        d = (last + timedelta(days=k)).isoformat()
+        if k == 1:
+            st = f"`{_bar(done, TARGET_DAYS, 10)}` 🔄 en progreso"
+        else:
+            st = f"`{_bar(0, 1, 10)}` ⏳ pendiente"
+        if n == TARGET_DAYS:
+            st += " · 🧠 primer entrenamiento"
+        rows.append(f"| {n} | {d} | {st} | | | | | |")
+
+    head = (f"🟢 **Red entrenada** · AUC {rep['cv_auc']}" if trained else
+            f"🟡 **Aprendiendo** · `{_bar(done, TARGET_DAYS, 20)}` {done}/{TARGET_DAYS} días "
+            f"para el primer entrenamiento")
+    dash = ["# 🧠 Penny Brain", "",
+            "Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen por Telegram.", "",
+            head, "",
+            "## 📅 Registro diario", "", *rows, ""]
+    if preds:
+        dash += ["## 🔮 Predicciones de hoy", ""] + _pred_table(preds[:5]) + [""]
+    dash += ["<sub>Productos = total en la base · Nuevos = vistos por primera vez ese día · "
+             "En FL = activos reportados en Florida · Escaneos = tus /penny y /no de ese día. "
+             "Todos los reportes: [reports/](reports/README.md)</sub>", ""]
     (ROOT / "README.md").write_text("\n".join(dash), encoding="utf-8")

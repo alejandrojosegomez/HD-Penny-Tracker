@@ -78,7 +78,7 @@ def test_full_daily_cycle(tmp_path, monkeypatch):
     day = date.today().isoformat()
     daily = (tmp_path / "reports" / day[:4] / day[5:7] / f"{day}.md").read_text(encoding="utf-8")
     index = (tmp_path / "reports" / "README.md").read_text(encoding="utf-8")
-    assert "Entrenada" in dash and "Predicciones" in dash and "xychart-beta" in dash
+    assert "Red entrenada" in dash and "Predicciones" in dash and "Registro diario" in dash
     assert "Predicciones" in daily and "❌ falló" in daily and "1015277793=penny" in daily
     assert index.count("\n| ") >= 30
 
