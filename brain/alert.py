@@ -56,7 +56,7 @@ HINTS = [  # (pattern in log, plain-language explanation)
     (r"rejected|non-fast-forward|could not push", "Alguien subió cambios al mismo tiempo y no se pudo guardar."),
     (r"Telegram message was not delivered|telegram error", "Telegram no recibió el mensaje: revisa los secrets TELEGRAM_TOKEN / TELEGRAM_CHAT_ID."),
     (r"every community source failed", "Ninguna página de la comunidad respondió: pueden estar caídas o haber cambiado su diseño."),
-    (r"ConnectionError|Timeout|Max retries|HTTPError|5\d\d", "Una página o servicio externo no respondió a tiempo."),
+    (r"ConnectionError|Timeout|Max retries|HTTPError|Server Error", "Una página o servicio externo no respondió a tiempo."),
     (r"ModuleNotFoundError|No matching distribution|pip", "Falló la instalación de dependencias de Python."),
     (r"sqlite3|database is locked|malformed", "Problema con la base de datos brain.db."),
 ]
