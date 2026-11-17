@@ -1,0 +1,20 @@
+name: Brain tests
+
+on:
+  push:
+    paths: ["brain/**/*.py", "tests/test_brain*.py", ".github/workflows/brain-*.yml"]
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: brain/requirements.txt
+      - run: pip install -r brain/requirements.txt pytest
+      - run: python -m pytest -q tests/test_brain.py tests/test_brain_e2e.py -W ignore::UserWarning

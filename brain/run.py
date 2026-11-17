@@ -97,11 +97,16 @@ def main() -> int:
             w.writerow([date.today().isoformat(), round(p, 4), s, n])
 
     print(tg)
+    sent = True
     if not args.no_send:
-        notify.send(tg[:4000])
+        sent = notify.send(tg[:4000])
+        if not sent:
+            print("::error::Telegram message was not delivered (check TELEGRAM_TOKEN / TELEGRAM_CHAT_ID secrets)")
     # every source failing means the run learned nothing new: fail the job so you see it
     ok_sources = [v for k, v in counts.items() if not k.startswith("_") and v != -1]
-    return 0 if ok_sources else 1
+    if not ok_sources:
+        print("::error::every community source failed today")
+    return 0 if ok_sources and sent else 1
 
 
 if __name__ == "__main__":
