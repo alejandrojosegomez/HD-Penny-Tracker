@@ -42,7 +42,7 @@ Dashboard: one card per item per store with price, % off, stock, sparkline of th
 ```bash
 git clone https://github.com/alejandrojosegomez/HD-Penny-Tracker.git && cd HD-Penny-Tracker
 cp .env.example .env                 # Telegram token + chat id (Supabase optional)
-pip install -r requirements.txt && playwright install chromium
+pip install -r requirements-dev.txt && playwright install chromium
 
 python -m tracker add 203401615 --category patio   # internet number = number at the end of the product URL
 python -m tracker scrape                            # watchlist × stores, once
@@ -51,7 +51,7 @@ python -m tracker serve                             # dashboard → http://local
 python -m tracker run                               # scheduler (worker)
 ```
 
-Or `docker compose up -d` for worker + dashboard together.
+Or `docker compose up -d --build` for worker + dashboard together (one image, runs as a non-root user; `.env` and `data/` are mounted, never baked into the image). The dashboard is published on `127.0.0.1:8000` only; see the comment in `docker-compose.yml` to open it to your Wi-Fi.
 
 **Stores** live in `config/stores.yaml` (mine: `0260` West Melbourne, `6381` N Melbourne, `6336` Palm Bay, `0430` Viera). **Storage** is SQLite by default; set `DATABASE_MODE=supabase` to write through to Postgres (`supabase/schema.sql`).
 

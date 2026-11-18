@@ -81,8 +81,12 @@ CREATE TABLE IF NOT EXISTS runs (
 class SQLiteStorage:
     def __init__(self, path: Path):
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(str(path), check_same_thread=False)
+        # worker and web containers share this file: wait for locks instead of failing,
+        # and use WAL so the dashboard can read while the worker writes
+        self.conn = sqlite3.connect(str(path), check_same_thread=False, timeout=30)
         self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA busy_timeout = 30000")
+        self.conn.execute("PRAGMA journal_mode = WAL")
         self.conn.executescript(SQLITE_SCHEMA)
         self.conn.commit()
 

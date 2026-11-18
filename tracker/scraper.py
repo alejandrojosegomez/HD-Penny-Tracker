@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import time
+from contextlib import contextmanager
 
 from .hd_client import Blocked, HDClient
 from .notify import send
@@ -27,7 +28,38 @@ def sync_watchlist_to_db() -> int:
     return created
 
 
+@contextmanager
+def _scrape_lock():
+    """One scrape at a time across processes/containers (worker schedule + dashboard button
+    share data/). Yields False if another scrape is already running."""
+    try:
+        import fcntl
+    except ImportError:          # Windows dev box: single process, nothing to coordinate
+        yield True
+        return
+    path = settings.sqlite_path.parent / "scrape.lock"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            yield False
+            return
+        try:
+            yield True
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+
 def scrape_all(limit: int | None = None) -> dict:
+    with _scrape_lock() as got:
+        if not got:
+            log.warning("another scrape is already running; skipping this one")
+            return {"ok": 0, "fail": 0, "blocked": 0, "stopped": True, "skipped": "already running"}
+        return _scrape_all(limit)
+
+
+def _scrape_all(limit: int | None = None) -> dict:
     db = get_storage()
     run_id = db.start_run("scrape")
     sync_watchlist_to_db()

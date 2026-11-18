@@ -11,3 +11,6 @@ venv/
 .playwright/
 brain_run.log
 save.log
+data/scrape.lock
+data/*.db-wal
+data/*.db-shm

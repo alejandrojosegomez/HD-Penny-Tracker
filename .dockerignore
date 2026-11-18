@@ -1,0 +1,28 @@
+# secrets and local state never go into the image (they're mounted / passed at run time)
+.env
+.env.*
+!.env.example
+data/
+*.db
+*.db-*
+*.log
+
+# not needed to run the tracker
+.git
+.github
+brain/
+tests/
+assets/
+supabase/
+*.md
+!README.md
+
+# python / editor junk
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.playwright/
+.vscode/
+.idea/
