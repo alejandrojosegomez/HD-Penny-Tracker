@@ -49,7 +49,7 @@ class Progress:
     def start(self, title: str):
         if not self.enabled:
             return
-        with open(ASSETS / "processing.gif", "rb") as f:
+        with open(ASSETS / "processing.mp4", "rb") as f:
             res = _api("sendAnimation", caption=f"⏳ {title}", files={"animation": f})
         self.msg_id = res and res.get("message_id")
         self.title = title
@@ -73,7 +73,7 @@ class Progress:
             return _api("sendMessage", text=caption) is not None
         import json
         if self.msg_id:
-            with open(ASSETS / "done.gif", "rb") as f:
+            with open(ASSETS / "done.mp4", "rb") as f:
                 res = _api("editMessageMedia", message_id=self.msg_id,
                            media=json.dumps({"type": "animation", "media": "attach://anim",
                                              "caption": caption, "parse_mode": "HTML"}),
@@ -81,7 +81,7 @@ class Progress:
             if res:
                 return True
             _api("deleteMessage", message_id=self.msg_id)
-        with open(ASSETS / "done.gif", "rb") as f:
+        with open(ASSETS / "done.mp4", "rb") as f:
             return _api("sendAnimation", caption=caption, parse_mode="HTML",
                         files={"animation": f}) is not None
 
