@@ -37,6 +37,13 @@ QUERY_PATH = Path(__file__).parent / "graphql" / "product.graphql"
 BLOCK_MARKERS = ("errors.edgesuite.net", "Access Denied", "Reference #18.")
 
 
+def is_challenge_page(text: str) -> bool:
+    """A tiny HTML page that only loads a script is the bot-check interstitial, not a product."""
+    head = text[:3000].lower()
+    return (len(text) < 10_000 and "<script" in head and "ld+json" not in head
+            and "__apollo_state__" not in text and "<title>" not in head.replace("<title></title>", ""))
+
+
 class Blocked(Exception):
     """Akamai refused us. Caller should refresh the session and back off."""
 
@@ -72,9 +79,9 @@ class HDClient:
         self._client.cookies.set("THD_LOCALIZER", sess_mod._localizer_cookie(store_id, zip_code), domain=".homedepot.com")
 
     def _check_block(self, status: int, text: str) -> None:
-        if status in (403, 429) or any(m in text[:2000] for m in BLOCK_MARKERS):
+        if status in (403, 429) or any(m in text[:2000] for m in BLOCK_MARKERS) or is_challenge_page(text):
             self.blocks_in_a_row += 1
-            raise Blocked(f"status={status}")
+            raise Blocked(f"status={status}" + (" (bot challenge page)" if status == 200 else ""))
         self.blocks_in_a_row = 0
 
     # ---- public --------------------------------------------------------
@@ -109,6 +116,10 @@ class HDClient:
         payload = r.json()
         prod = (payload.get("data") or {}).get("product")
         if not prod:
+            # "Generic errors" with no data is how the gateway refuses an unverified client
+            if "Generic errors" in r.text[:500]:
+                self.blocks_in_a_row += 1
+                raise Blocked("graphql refused (Generic errors)")
             return None
         return _normalize_graphql(item, prod)
 
