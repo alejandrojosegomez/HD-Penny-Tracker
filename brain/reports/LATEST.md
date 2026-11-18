@@ -1,12 +1,12 @@
-# 🧠 Reporte del cerebro — 2026-11-17
+# 🧠 Reporte del cerebro — 2026-11-18
 
 [← Panel](../README.md) · [Todos los reportes](README.md)
 
 | Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Extendiéndose |
 |:-:|:-:|:-:|:-:|:-:|
-| **420** | **35** | **274** | **34** | **10** |
+| **420** | **0** | **262** | **31** | **10** |
 
-**Red neuronal:** 🟡 Juntando datos · día **3 de 15**
+**Red neuronal:** 🟡 Juntando datos · día **4 de 15**
 
 **🎯 Aciertos: se miden desde el 2026-12-01**
 
@@ -60,7 +60,7 @@
 | Fuente | Estado | Productos |
 |---|:-:|--:|
 | PennyRecon | ✅ | 310 |
-| Paydirt | ✅ | 261 |
+| Paydirt | ✅ | 260 |
 | Penny Pinchin' Mom | ✅ | 67 |
 
 <sub>Generado automáticamente por GitHub Actions. Los enlaces abren la búsqueda del SKU en homedepot.com.</sub>
