@@ -1,117 +1,386 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HD Penny Tracker</title>
+<title>Penny Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#0f1115; --card:#171a21; --line:#262a33; --text:#e8eaf0; --muted:#8b93a7; --hd:#f96302; --ok:#2ecc71; --warn:#f1c40f; --hot:#ff4d4d; }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
-  header { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:2; }
-  header h1 { font-size:18px; margin:0; color:var(--hd); }
-  header .status { color:var(--muted); font-size:12px; margin-left:auto; }
-  .controls { display:flex; flex-wrap:wrap; gap:8px; padding:12px 18px; border-bottom:1px solid var(--line); }
-  select, input, button { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:14px; }
-  button.primary { background:var(--hd); border-color:var(--hd); color:#fff; font-weight:600; cursor:pointer; }
-  main { padding:14px 18px; display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
-  .card img { width:100%; height:160px; object-fit:contain; background:#fff; }
-  .body { padding:12px; display:flex; flex-direction:column; gap:6px; flex:1; }
-  .name { font-weight:600; line-height:1.3; }
-  .desc { color:var(--muted); font-size:12px; max-height:3.9em; overflow:hidden; }
-  .row { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-  .price { font-size:20px; font-weight:700; }
-  .was { color:var(--muted); text-decoration:line-through; font-size:12px; }
-  .off { color:var(--ok); font-weight:600; }
-  .store { color:var(--muted); font-size:12px; }
-  .badge { display:inline-block; padding:3px 8px; border-radius:999px; font-size:12px; font-weight:700; white-space:nowrap; flex-shrink:0; }
-  .b-hot { background:var(--hot); color:#fff; } .b-watch { background:var(--warn); color:#000; } .b-low { background:var(--line); color:var(--muted); }
-  .reasons { font-size:12px; color:var(--muted); }
-  .spark { height:36px; width:100%; }
-  .meta { font-size:11px; color:var(--muted); display:flex; justify-content:space-between; }
-  .meta code { background:#0b0d11; padding:1px 5px; border-radius:4px; }
-  .empty { grid-column:1/-1; text-align:center; color:var(--muted); padding:60px 0; }
-  a { color:inherit; }
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --line:#e6e8ec; --text:#1b1d22; --muted:#6b7280; --soft:#f1f2f5;
+  --side:#1b1c22; --side-2:#26272f; --side-text:#c9cbd3; --side-muted:#8b8e99;
+  --hd:#f96302; --hd-soft:#fff1e7; --fl:#0e9f6e; --fl-soft:#e7f7f0; --spread:#e8590c; --spread-soft:#fff0e6;
+  --hot:#e5484d; --hot-soft:#fdecec; --warn:#b7791f; --warn-soft:#fdf6e3;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#111216; --panel:#18191f; --line:#2a2c34; --text:#eceef3; --muted:#9aa0ad; --soft:#20222a;
+    --hd-soft:#3a2312; --fl-soft:#123128; --spread-soft:#3a2516; --hot-soft:#3a1c1e; --warn-soft:#352b17;
+    --shadow:0 1px 2px rgba(0,0,0,.4); }
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+
+/* ---------- sidebar (Slack-style) ---------- */
+.side{background:var(--side);color:var(--side-text);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid #2c2d35}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(140deg,#ff8a3d,#f96302 55%,#c94c00);display:grid;place-items:center;
+  color:#fff;font-weight:800;font-size:13px;letter-spacing:-.3px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.brand b{display:block;color:#fff;font-size:15px;font-weight:700;letter-spacing:-.2px}
+.brand small{color:var(--side-muted);font-size:12px}
+.nav{padding:12px 8px;display:flex;flex-direction:column;gap:2px;overflow:auto}
+.nav h6{margin:14px 10px 6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--side-muted)}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;color:var(--side-text);font-size:14px}
+.nav button:hover{background:var(--side-2)}
+.nav button.on{background:var(--hd);color:#fff;font-weight:600}
+.nav button .ic{width:20px;text-align:center}
+.nav button .n{margin-left:auto;font-size:12px;min-width:22px;text-align:center;padding:1px 7px;border-radius:999px;background:#33343d;color:#e5e6eb}
+.nav button.on .n{background:rgba(255,255,255,.25);color:#fff}
+.status{margin-top:auto;padding:14px 16px 18px;border-top:1px solid #2c2d35;display:flex;flex-direction:column;gap:9px;font-size:12.5px}
+.st{display:flex;align-items:center;gap:8px;color:var(--side-text)}
+.dot{width:8px;height:8px;border-radius:50%;background:#555;flex-shrink:0}
+.dot.ok{background:#2fd17c;box-shadow:0 0 0 3px rgba(47,209,124,.18)}
+.dot.pause{background:#f5b83d}
+.dot.off{background:#e5484d}
+.st small{color:var(--side-muted);margin-left:auto}
+.learn{height:6px;border-radius:99px;background:#33343d;overflow:hidden}
+.learn i{display:block;height:100%;background:linear-gradient(90deg,#ff8a3d,#f96302);border-radius:99px;transition:width .6s}
+
+/* ---------- main ---------- */
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.top p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 12px;
+  min-width:240px;box-shadow:var(--shadow)}
+.search input{border:0;outline:0;background:transparent;padding:9px 0;width:100%}
+.content{padding:22px 28px 40px;display:flex;flex-direction:column;gap:20px}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.stat .k{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.stat .v{font-size:26px;font-weight:700;letter-spacing:-.6px;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .s{color:var(--muted);font-size:12px}
+
+.note{display:flex;gap:12px;align-items:flex-start;background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);
+  color:var(--text);padding:12px 14px;border-radius:12px;font-size:13px}
+.note b{color:var(--warn)}
+
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:13px;color:var(--muted)}
+.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.toolbar .sp{margin-left:auto;color:var(--muted);font-size:13px}
+
+.list{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;padding:13px 16px;border-top:1px solid var(--line);
+  animation:in .35s ease both}
+.row:first-child{border-top:0}
+.row:hover{background:var(--soft)}
+@keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.av{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:21px;background:var(--hd-soft)}
+.t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{color:var(--muted);font-size:12.5px;display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.sub code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:var(--soft);padding:1px 6px;border-radius:5px;cursor:pointer}
+.sub code:hover{outline:1px solid var(--line)}
+.tags{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+.tag{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.tag.fl{background:var(--fl-soft);color:var(--fl)}
+.tag.sp{background:var(--spread-soft);color:var(--spread)}
+.tag.hot{background:var(--hot-soft);color:var(--hot)}
+.tag.mut{background:var(--soft);color:var(--muted)}
+.go{all:unset;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--hd);padding:5px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--hd) 35%,transparent)}
+.go:hover{background:var(--hd-soft)}
+.bar{height:5px;width:70px;border-radius:99px;background:var(--soft);overflow:hidden;align-self:center}
+.bar i{display:block;height:100%;background:var(--spread);border-radius:99px}
+
+.empty{padding:48px 20px;text-align:center;color:var(--muted)}
+.empty .big{font-size:36px;margin-bottom:8px}
+.skel{height:64px;border-top:1px solid var(--line);background:linear-gradient(90deg,var(--panel),var(--soft),var(--panel));background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+.add{display:flex;gap:8px}
+.add input{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;width:220px}
+.btn{all:unset;cursor:pointer;background:var(--hd);color:#fff;font-weight:600;padding:8px 14px;border-radius:10px;font-size:13.5px}
+.btn:hover{filter:brightness(1.07)}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--side);color:#fff;padding:10px 16px;border-radius:10px;
+  font-size:13.5px;opacity:0;transition:.25s;pointer-events:none;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+.menu{display:none}
+
+/* ---------- phone ---------- */
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:270px;z-index:30;transform:translateX(-100%);transition:transform .25s}
+  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.4)}
+  .menu{display:inline-grid;all:unset;cursor:pointer;width:36px;height:36px;border-radius:9px;border:1px solid var(--line);place-items:center;background:var(--panel)}
+  .top{padding:12px 16px}
+  .top > div{flex:1;min-width:0}
+  .top h1{font-size:18px}
+  .search{order:3;width:100%;min-width:0;margin-left:0}
+  .content{padding:16px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:40px minmax(0,1fr);}
+  .row .tags{grid-column:2;justify-content:flex-start}
+  .av{width:40px;height:40px}
+  .add input{width:100%}
+  .add{width:100%}
+}
 </style>
 </head>
 <body>
-<header>
-  <h1>HD Penny Tracker</h1>
-  <span id="count" class="status"></span>
-  <span id="live" class="status">connecting…</span>
-</header>
-<div class="controls">
-  <select id="store"><option value="">All stores</option></select>
-  <select id="minscore">
-    <option value="0">Any score</option>
-    <option value="45">Watch (45+)</option>
-    <option value="70" selected>Go scan (70+)</option>
-  </select>
-  <input id="q" placeholder="search name / brand / internet #" style="flex:1;min-width:160px">
-  <input id="add" placeholder="add internet # (9-10 digits)" style="width:190px">
-  <button class="primary" id="addbtn">Add</button>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="logo">1¢</div>
+      <div><b>Penny Tracker</b><small>Melbourne, FL</small></div>
+    </div>
+    <nav class="nav" id="nav">
+      <h6>Cerebro</h6>
+      <button data-v="spread" class="on"><span class="ic">🔥</span>Se están extendiendo<span class="n" id="n-spread">·</span></button>
+      <button data-v="fl"><span class="ic">📍</span>En Florida<span class="n" id="n-fl">·</span></button>
+      <button data-v="all"><span class="ic">📦</span>Todos los productos<span class="n" id="n-all">·</span></button>
+      <h6>Mis tiendas</h6>
+      <button data-v="stores"><span class="ic">🏬</span>Vigilados<span class="n" id="n-stores">·</span></button>
+      <button data-v="alerts"><span class="ic">🔔</span>Alertas<span class="n" id="n-alerts">·</span></button>
+    </nav>
+    <div class="status">
+      <div class="st"><span class="dot" id="d-brain"></span>Cerebro<small id="s-brain">—</small></div>
+      <div class="learn"><i id="learn" style="width:0"></i></div>
+      <div class="st"><span class="dot" id="d-web"></span>Panel en vivo<small id="s-web">—</small></div>
+      <div class="st"><span class="dot pause" id="d-prices"></span>Precios por tienda<small id="s-prices">—</small></div>
+    </div>
+  </aside>
+
+  <section class="main">
+    <header class="top">
+      <button class="menu" id="menu" aria-label="Menú">☰</button>
+      <div>
+        <h1 id="title">🔥 Se están extendiendo</h1>
+        <p id="subtitle">Aún no en Florida, pero ganando estados esta semana</p>
+      </div>
+      <label class="search">🔎<input id="q" placeholder="Buscar producto o SKU"></label>
+    </header>
+
+    <div class="content">
+      <div class="stats" id="stats"></div>
+      <div id="notice"></div>
+      <div class="toolbar" id="toolbar"></div>
+      <div class="list" id="list"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+  </section>
 </div>
-<main id="grid"><div class="empty">Loading…</div></main>
+<div class="toast" id="toast"></div>
 
 <script>
-let items = [], stores = [];
-const $ = s => document.querySelector(s);
-// scraped names/descriptions are text, not HTML: escape everything we interpolate
-const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-// DOMParser builds an inert document: unlike innerHTML on a div, nothing in it can run
-const plain = v => new DOMParser().parseFromString(String(v ?? ''), 'text/html').body.textContent || '';
-const safeUrl = u => /^https?:\/\//i.test(u || '') ? esc(u) : '#';
+// Brain data is public in the repo; the browser reads it straight from GitHub.
+const BRAIN = 'https://raw.githubusercontent.com/alejandrojosegomez/HD-Penny-Tracker/main/brain/';
+const TARGET_DAYS = 15;
 
-async function loadStores(){
-  stores = await (await fetch('/api/stores')).json();
-  for (const s of stores){ const o=document.createElement('option'); o.value=s.hd_store_id; o.textContent=`${s.name} (#${s.hd_store_id})`; $('#store').appendChild(o); }
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? esc(u) : '#';
+const fmt = n => Number(n || 0).toLocaleString('es');
+
+let view = 'spread', chip = 'all';
+const data = { products: [], days: 0, model: null, items: [], alerts: [], stores: [], brainOk: null };
+
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+
+function parseCSV(text){
+  const rows=[]; let row=[], cell='', q=false;
+  for (let i=0;i<text.length;i++){
+    const c=text[i];
+    if (q){ if (c==='"'){ if (text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else if (c==='"') q=true;
+    else if (c===','){ row.push(cell); cell=''; }
+    else if (c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+    else if (c!=='\r') cell+=c;
+  }
+  if (cell || row.length){ row.push(cell); rows.push(row); }
+  const [head, ...body] = rows;
+  return body.filter(r=>r.length>1).map(r=>Object.fromEntries(head.map((h,i)=>[h, r[i] ?? ''])));
 }
-function spark(points){
-  if(!points || points.length<2) return '';
-  const w=280,h=36, ps=points.map(p=>p.p); const min=Math.min(...ps), max=Math.max(...ps); const span=(max-min)||1;
-  const d=ps.map((p,i)=>`${i?'L':'M'}${(i/(ps.length-1))*w},${h-((p-min)/span)*(h-4)-2}`).join(' ');
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="#f96302" stroke-width="2"/></svg>`;
+
+const ICONS = [[/light|lamp|led|sconce|bulb|chandelier|lumen/i,'💡'],[/drill|saw|blade|wrench|ryobi|milwaukee|dewalt|tool|bit|husky/i,'🛠️'],
+  [/toilet|vanity|faucet|shower|sink|bath/i,'🚿'],[/floor|plank|tile|vinyl|rug|mat/i,'🧱'],[/patio|outdoor|grill|garden|lawn|plant/i,'🌿'],
+  [/bag|storage|tote|bin|shelf|rack/i,'📦'],[/outlet|usb|switch|wire|doorbell|smart|headphone|tv/i,'🔌'],[/paint|stain|sealant|caulk/i,'🎨']];
+const icon = name => (ICONS.find(([re]) => re.test(name || '')) || [0,'🏷️'])[1];
+
+async function loadBrain(){
+  try{
+    const bust = '?t=' + Math.floor(Date.now()/300000);          // refresh every 5 min
+    const [p, runs, model] = await Promise.all([
+      fetch(BRAIN+'products.csv'+bust).then(r=>{ if(!r.ok) throw r.status; return r.text(); }),
+      fetch(BRAIN+'state/snapshot_runs.csv'+bust).then(r=>r.ok?r.text():''),
+      fetch(BRAIN+'state/model_report.json'+bust).then(r=>r.ok?r.json():null).catch(()=>null)]);
+    data.products = parseCSV(p).map(r=>({...r, reports:+r.reports||0, states:+r.states||0, in_florida:r.in_florida==='1',
+      gain:+r.states_gained_7d||0, rgain:+r.reports_gained_7d||0, retail:r.retail?+r.retail:null}));
+    data.days = runs ? parseCSV(runs).length : 0;
+    data.model = model; data.brainOk = true;
+  }catch(e){ data.brainOk = false; }
 }
-function badge(score){
-  if(score>=70) return `<span class="badge b-hot">GO SCAN · ${score}</span>`;
-  if(score>=45) return `<span class="badge b-watch">watch · ${score}</span>`;
-  return `<span class="badge b-low">${score}</span>`;
-}
-function render(){
-  const st=$('#store').value, ms=+$('#minscore').value, q=$('#q').value.toLowerCase();
-  const rows=items.filter(r=>(!st||r.hd_store_id===st)&&r.score>=ms&&(!q||`${r.name} ${r.brand} ${r.internet_number} ${r.sku}`.toLowerCase().includes(q)));
-  $('#count').textContent=`${rows.length} of ${items.length} item-store pairs`;
-  if(!rows.length){ $('#grid').innerHTML='<div class="empty">Nothing matches. Add an internet number above or lower the score filter.</div>'; return; }
-  $('#grid').innerHTML=rows.map(r=>`
-    <div class="card">
-      ${r.image_url?`<img src="${safeUrl(r.image_url)}" alt="" loading="lazy" onerror="this.remove()">`:''}
-      <div class="body">
-        <div class="row"><span class="name">${esc(r.name||('Item '+r.internet_number))}</span>${badge(r.score)}</div>
-        <div class="desc">${esc(plain(r.description))}</div>
-        <div class="row">
-          <span class="price">${r.price!=null?'$'+r.price.toFixed(2):'n/a'} ${r.original_price&&r.discount_pct>0?`<span class="was">$${r.original_price.toFixed(2)}</span>`:''}</span>
-          <span class="off">${r.discount_pct?r.discount_pct.toFixed(0)+'% off':''}</span>
-        </div>
-        <div class="store">${esc(r.store_name)} (#${esc(r.hd_store_id)}) · ${esc((r.availability||'unknown').replace('_',' '))}${r.stock!=null?' · qty '+r.stock:''}</div>
-        ${spark(r.history_points)}
-        <div class="reasons">${esc((r.reasons||[]).join(' · '))}</div>
-        <div class="meta"><span>Internet # <code>${esc(r.internet_number)}</code>${r.sku?' · SKU <code>'+esc(r.sku)+'</code>':''}</span><a href="${safeUrl(r.product_url)}" target="_blank" rel="noopener">open</a></div>
-      </div>
-    </div>`).join('');
+async function loadLocal(){
+  try{
+    const [stores, alerts, health] = await Promise.all([
+      fetch('/api/stores').then(r=>r.json()), fetch('/api/alerts?limit=100').then(r=>r.json()), fetch('/api/health').then(r=>r.json())]);
+    data.stores = stores; data.alerts = alerts; data.health = health;
+  }catch(e){}
 }
 function connect(){
-  const es=new EventSource('/stream');
-  es.addEventListener('items', e=>{ items=JSON.parse(e.data); $('#live').textContent='live · '+new Date().toLocaleTimeString(); render(); });
-  es.onerror=()=>{ $('#live').textContent='reconnecting…'; };
+  const es = new EventSource('/stream');
+  es.addEventListener('items', e => { data.items = JSON.parse(e.data); setStatus(true); if (view==='stores') render(); counts(); });
+  es.onerror = () => setStatus(false);
 }
-$('#store').onchange=$('#minscore').onchange=$('#q').oninput=render;
-$('#addbtn').onclick=async()=>{
-  const n=$('#add').value.trim(); if(!/^\d{9,10}$/.test(n)) return alert('9 or 10 digits please');
-  const r=await fetch('/api/items/'+n,{method:'POST'}); const j=await r.json();
-  alert(j.added?'Added. It will be scraped on the next run.':'Already on the watchlist.'); $('#add').value='';
+function setStatus(live){
+  $('#d-web').className = 'dot ' + (live ? 'ok' : 'off');
+  $('#s-web').textContent = live ? new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}) : 'sin conexión';
+}
+
+const sets = {
+  spread: () => data.products.filter(p=>!p.in_florida && p.gain>0).sort((a,b)=>b.gain-a.gain||b.rgain-a.rgain||b.states-a.states),
+  fl:     () => data.products.filter(p=>p.in_florida).sort((a,b)=>b.reports-a.reports),
+  all:    () => [...data.products].sort((a,b)=>b.states-a.states||b.reports-a.reports),
 };
-loadStores().then(connect);
+function counts(){
+  $('#n-spread').textContent = fmt(sets.spread().length);
+  $('#n-fl').textContent = fmt(sets.fl().length);
+  $('#n-all').textContent = fmt(data.products.length);
+  $('#n-stores').textContent = fmt(data.items.length);
+  $('#n-alerts').textContent = fmt(data.alerts.length);
+  const done = Math.min(data.days, TARGET_DAYS), trained = data.model && data.model.trained;
+  $('#d-brain').className = 'dot ' + (data.brainOk ? 'ok' : data.brainOk===false ? 'off' : '');
+  $('#s-brain').textContent = data.brainOk===false ? 'sin datos' : trained ? `AUC ${data.model.cv_auc}` : `día ${done}/${TARGET_DAYS}`;
+  $('#learn').style.width = (trained ? 100 : done/TARGET_DAYS*100) + '%';
+  const priced = data.items.some(i => i.price != null);
+  $('#d-prices').className = 'dot ' + (priced ? 'ok' : 'pause');
+  $('#s-prices').textContent = priced ? 'activos' : 'en pausa';
+}
+
+const HEAD = {
+  spread: ['🔥 Se están extendiendo', 'Aún no en Florida, pero ganando estados esta semana'],
+  fl:     ['📍 En Florida', 'Reportados en Florida en los últimos 14 días'],
+  all:    ['📦 Todos los productos', 'Todo lo que el cerebro ha visto en las listas de la comunidad'],
+  stores: ['🏬 Vigilados en mis tiendas', 'Productos que el tracker revisa en tus 4 tiendas de Melbourne'],
+  alerts: ['🔔 Alertas', 'Lo que el tracker marcó para ir a escanear'],
+};
+
+function stats(){
+  const fl = sets.fl().length, sp = sets.spread();
+  const done = Math.min(data.days, TARGET_DAYS), trained = data.model && data.model.trained;
+  const tile = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  $('#stats').innerHTML =
+    tile('📦 Productos', fmt(data.products.length), 'en las listas de la comunidad') +
+    tile('📍 En Florida', fmt(fl), 'reportados en los últimos 14 días') +
+    tile('🔥 Extendiéndose', fmt(sp.length), sp[0] ? `top: +${sp[0].gain} estados en 7 días` : 'sin movimiento hoy') +
+    tile('🧠 Red neuronal', trained ? `AUC ${data.model.cv_auc}` : `${done}/${TARGET_DAYS}`,
+         trained ? 'entrenada, se reentrena cada día' : `días hasta el primer entrenamiento`);
+}
+
+function brainRow(p){
+  const states = p.in_florida
+    ? `<span class="tag fl">En FL</span>`
+    : p.gain ? `<span class="tag sp">+${p.gain} estados</span>` : '';
+  const pct = Math.min(100, p.gain / Math.max(1, ...data.products.map(x=>x.gain)) * 100);
+  return `<div class="row">
+    <div class="av">${icon(p.name)}</div>
+    <div style="min-width:0">
+      <div class="t" title="${esc(p.name)}">${esc(p.name || 'Sin nombre')}</div>
+      <div class="sub"><code data-copy="${esc(p.sku)}" title="Copiar SKU">${esc(p.sku)}</code>
+        ${p.retail ? `<span>$${p.retail.toFixed(2)}</span>` : ''}
+        <span>${fmt(p.reports)} reportes · ${p.states} estados</span>
+        ${view==='spread' ? `<span class="bar" title="velocidad"><i style="width:${pct}%"></i></span>` : ''}</div>
+    </div>
+    <div class="tags">${states}<a class="go" href="${safeUrl(p.homedepot_link)}" target="_blank" rel="noopener">Ver en HD ↗</a></div>
+  </div>`;
+}
+function storeRow(r){
+  const score = r.score >= 70 ? `<span class="tag hot">Escanear · ${r.score}</span>` : r.score >= 45 ? `<span class="tag sp">Vigilar · ${r.score}</span>` : `<span class="tag mut">${r.score}</span>`;
+  const price = r.price != null ? `$${r.price.toFixed(2)}${r.discount_pct ? ` · ${r.discount_pct.toFixed(0)}% off` : ''}` : 'sin precio';
+  return `<div class="row">
+    <div class="av">${icon(r.name)}</div>
+    <div style="min-width:0">
+      <div class="t">${esc(r.name || 'Item ' + r.internet_number)}</div>
+      <div class="sub"><span>${esc(r.store_name)} #${esc(r.hd_store_id)}</span><span>${price}</span>
+        <code data-copy="${esc(r.internet_number)}">${esc(r.internet_number)}</code></div>
+    </div>
+    <div class="tags">${score}<a class="go" href="${safeUrl(r.product_url)}" target="_blank" rel="noopener">Ver en HD ↗</a></div>
+  </div>`;
+}
+function alertRow(a){
+  return `<div class="row">
+    <div class="av">🔔</div>
+    <div style="min-width:0">
+      <div class="t">${esc(a.name || 'Item ' + a.internet_number)}</div>
+      <div class="sub"><span>${esc(a.store_name)} #${esc(a.hd_store_id)}</span><span>${esc((a.reasons||[]).join(' · '))}</span>
+        <span>${new Date(a.created_at).toLocaleString('es')}</span></div>
+    </div>
+    <div class="tags"><span class="tag ${a.score>=70?'hot':'sp'}">${a.score}</span></div>
+  </div>`;
+}
+
+function render(){
+  const [t, s] = HEAD[view]; $('#title').textContent = t; $('#subtitle').textContent = s;
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.v === view));
+  const q = $('#q').value.trim().toLowerCase();
+  const match = x => !q || `${x.name} ${x.sku} ${x.internet_number}`.toLowerCase().includes(q);
+  let rows = [], html = '', note = '';
+
+  if (view in sets){
+    if (data.brainOk === false){ $('#list').innerHTML = empty('📡','No se pudo leer el cerebro desde GitHub','Revisa tu conexión; se reintenta solo cada 5 minutos.'); return; }
+    rows = sets[view]().filter(match);
+    if (view === 'all' && chip !== 'all') rows = rows.filter(p => chip === 'fl' ? p.in_florida : !p.in_florida);
+    $('#toolbar').innerHTML = view === 'all'
+      ? ['all:Todos','fl:En Florida','nofl:Fuera de Florida'].map(c => { const [k,l]=c.split(':'); return `<button class="chip ${chip===k?'on':''}" data-chip="${k}">${l}</button>`; }).join('') + `<span class="sp">${fmt(rows.length)} productos</span>`
+      : `<span class="sp">${fmt(rows.length)} productos · se actualiza cada mañana a las 7:00</span>`;
+    html = rows.slice(0, 200).map(brainRow).join('');
+    if (!rows.length) html = view === 'spread'
+      ? empty('🌱','Nada se está extendiendo hoy','Cuando un producto gane estados en la semana aparece aquí.')
+      : empty('🔍','Sin resultados', q ? 'Prueba con otra búsqueda.' : 'Todavía no hay datos.');
+  } else if (view === 'stores'){
+    rows = data.items.filter(match);
+    if (!data.items.some(i => i.price != null))
+      note = `<div class="note">⏸️<div><b>Precios por tienda en pausa.</b> Home Depot bloquea a los programas automáticos, así que el tracker no puede leer precios ni stock. Los productos siguen en la lista para cuando se reactive.</div></div>`;
+    $('#toolbar').innerHTML = `<div class="add"><input id="addn" placeholder="Agregar internet # (9-10 dígitos)" inputmode="numeric"><button class="btn" id="addbtn">Agregar</button></div><span class="sp">${fmt(rows.length)} producto-tienda</span>`;
+    html = rows.map(storeRow).join('') || empty('🏬','Nada vigilado todavía','Agrega un internet # arriba.');
+    $('#addbtn').onclick = add;
+  } else {
+    rows = data.alerts.filter(match);
+    $('#toolbar').innerHTML = `<span class="sp">${fmt(rows.length)} alertas</span>`;
+    html = rows.map(alertRow).join('') || empty('🔕','Sin alertas','Aparecen cuando un producto llega a 45+ puntos en una de tus tiendas.');
+  }
+  $('#notice').innerHTML = note;
+  $('#list').innerHTML = html;
+}
+const empty = (i, t, s) => `<div class="empty"><div class="big">${i}</div><b>${esc(t)}</b><div>${esc(s)}</div></div>`;
+
+async function add(){
+  const n = $('#addn').value.trim();
+  if (!/^\d{9,10}$/.test(n)) return toast('El internet # tiene 9 o 10 dígitos');
+  const r = await fetch('/api/items/' + n, {method:'POST'}); const j = await r.json();
+  toast(j.added ? 'Agregado ✅' : 'Ya estaba en la lista'); $('#addn').value = '';
+}
+
+$('#nav').onclick = e => { const b = e.target.closest('button'); if (!b) return; view = b.dataset.v; chip = 'all'; $('#side').classList.remove('open'); render(); };
+$('#toolbar').onclick = e => { const c = e.target.closest('[data-chip]'); if (c){ chip = c.dataset.chip; render(); } };
+$('#list').onclick = e => { const c = e.target.closest('[data-copy]'); if (c){ navigator.clipboard?.writeText(c.dataset.copy); toast('Copiado: ' + c.dataset.copy); } };
+$('#q').oninput = render;
+$('#menu').onclick = () => $('#side').classList.toggle('open');
+document.addEventListener('click', e => { if ($('#side').classList.contains('open') && !e.target.closest('#side,#menu')) $('#side').classList.remove('open'); });
+
+(async () => {
+  await Promise.all([loadBrain(), loadLocal()]);
+  counts(); stats(); render(); connect();
+  setInterval(async () => { await loadBrain(); counts(); stats(); if (view in sets) render(); }, 300000);
+})();
 </script>
 </body>
 </html>
