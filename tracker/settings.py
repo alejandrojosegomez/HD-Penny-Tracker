@@ -50,7 +50,8 @@ class Settings:
     supabase_url: str = _env("SUPABASE_URL")
     supabase_key: str = _env("SUPABASE_SERVICE_KEY")
 
-    telegram_token: str = _env("TELEGRAM_BOT_TOKEN")
+    # TELEGRAM_TOKEN is the name the brain uses; accept either so one .env works for both
+    telegram_token: str = _env("TELEGRAM_BOT_TOKEN") or _env("TELEGRAM_TOKEN")
     telegram_chat_id: str = _env("TELEGRAM_CHAT_ID")
 
     delay_min: float = _env_float("REQUEST_DELAY_MIN", 2.0)

@@ -59,3 +59,21 @@ def test_graphql_normalize():
     assert d["price"] == 2.02 and d["original_price"] == 289.0
     assert d["stock"] == 2 and d["availability"] == "in_stock" and d["discontinued"]
     assert d["image_url"].endswith("600.jpg")
+
+
+def test_alert_escapes_html():
+    from tracker.notify import format_alert
+    msg = format_alert({"internet_number": "318430226", "name": "BLACK+DECKER Drill & <Bits>"},
+                       {"name": "West Melbourne", "hd_store_id": "0260"}, {"price": 0.01}, 80, ["a & b"])
+    assert "Drill &amp; &lt;Bits&gt;" in msg and "a &amp; b" in msg and "<Bits>" not in msg
+
+
+def test_telegram_token_fallback(monkeypatch):
+    import importlib
+    import tracker.settings as s
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    monkeypatch.setenv("TELEGRAM_TOKEN", "abc")
+    importlib.reload(s)
+    assert s.settings.telegram_token == "abc"
+    monkeypatch.delenv("TELEGRAM_TOKEN")
+    importlib.reload(s)

@@ -57,6 +57,11 @@
 <script>
 let items = [], stores = [];
 const $ = s => document.querySelector(s);
+// scraped names/descriptions are text, not HTML: escape everything we interpolate
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// DOMParser builds an inert document: unlike innerHTML on a div, nothing in it can run
+const plain = v => new DOMParser().parseFromString(String(v ?? ''), 'text/html').body.textContent || '';
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? esc(u) : '#';
 
 async function loadStores(){
   stores = await (await fetch('/api/stores')).json();
@@ -80,18 +85,18 @@ function render(){
   if(!rows.length){ $('#grid').innerHTML='<div class="empty">Nothing matches. Add an internet number above or lower the score filter.</div>'; return; }
   $('#grid').innerHTML=rows.map(r=>`
     <div class="card">
-      ${r.image_url?`<img src="${r.image_url}" alt="" loading="lazy" onerror="this.remove()">`:''}
+      ${r.image_url?`<img src="${safeUrl(r.image_url)}" alt="" loading="lazy" onerror="this.remove()">`:''}
       <div class="body">
-        <div class="row"><span class="name">${r.name||('Item '+r.internet_number)}</span>${badge(r.score)}</div>
-        <div class="desc">${r.description||''}</div>
+        <div class="row"><span class="name">${esc(r.name||('Item '+r.internet_number))}</span>${badge(r.score)}</div>
+        <div class="desc">${esc(plain(r.description))}</div>
         <div class="row">
           <span class="price">${r.price!=null?'$'+r.price.toFixed(2):'n/a'} ${r.original_price&&r.discount_pct>0?`<span class="was">$${r.original_price.toFixed(2)}</span>`:''}</span>
           <span class="off">${r.discount_pct?r.discount_pct.toFixed(0)+'% off':''}</span>
         </div>
-        <div class="store">${r.store_name} (#${r.hd_store_id}) · ${(r.availability||'unknown').replace('_',' ')}${r.stock!=null?' · qty '+r.stock:''}</div>
+        <div class="store">${esc(r.store_name)} (#${esc(r.hd_store_id)}) · ${esc((r.availability||'unknown').replace('_',' '))}${r.stock!=null?' · qty '+r.stock:''}</div>
         ${spark(r.history_points)}
-        <div class="reasons">${(r.reasons||[]).join(' · ')}</div>
-        <div class="meta"><span>Internet # <code>${r.internet_number}</code>${r.sku?' · SKU <code>'+r.sku+'</code>':''}</span><a href="${r.product_url||'#'}" target="_blank" rel="noopener">open</a></div>
+        <div class="reasons">${esc((r.reasons||[]).join(' · '))}</div>
+        <div class="meta"><span>Internet # <code>${esc(r.internet_number)}</code>${r.sku?' · SKU <code>'+esc(r.sku)+'</code>':''}</span><a href="${safeUrl(r.product_url)}" target="_blank" rel="noopener">open</a></div>
       </div>
     </div>`).join('');
 }

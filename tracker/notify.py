@@ -1,6 +1,7 @@
 """Telegram notifications. Plain Bot API call, no library needed."""
 from __future__ import annotations
 
+import html
 import logging
 
 import httpx
@@ -29,7 +30,8 @@ def send(text: str) -> bool:
 
 def format_alert(product: dict, store: dict, latest: dict, score: int, reasons: list[str]) -> str:
     label = "🔥 GO SCAN TODAY" if score >= settings.alert_threshold else "👀 watch this week"
-    name = product.get("name") or f"Item {product['internet_number']}"
+    e = html.escape
+    name = e(product.get("name") or f"Item {product['internet_number']}")
     price = latest.get("price")
     orig = latest.get("original_price")
     disc = latest.get("discount_pct")
@@ -41,15 +43,15 @@ def format_alert(product: dict, store: dict, latest: dict, score: int, reasons: 
     lines = [
         f"<b>{label}</b> — score {score}",
         f"<b>{name}</b>",
-        f"Store: {store.get('name')} (#{store.get('hd_store_id')})",
+        f"Store: {e(str(store.get('name')))} (#{e(str(store.get('hd_store_id')))})",
         f"Price: {price_line}",
-        f"Stock: {stock if stock is not None else '?'} · {avail.replace('_', ' ')}",
+        f"Stock: {stock if stock is not None else '?'} · {e(avail.replace('_', ' '))}",
         f"Internet #: <code>{product['internet_number']}</code>" + (f" · SKU <code>{product['sku']}</code>" if product.get("sku") else ""),
         "",
-        "Why: " + "; ".join(reasons),
+        "Why: " + e("; ".join(reasons)),
     ]
     if product.get("product_url"):
-        lines.append(product["product_url"])
+        lines.append(e(product["product_url"]))
     return "\n".join(lines)
 
 
