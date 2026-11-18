@@ -14,3 +14,9 @@ save.log
 data/scrape.lock
 data/*.db-wal
 data/*.db-shm
+
+# brain: working db and model are rebuilt every run from the CSV state
+brain/state/brain.db
+brain/state/brain.db-*
+brain/state/model.joblib
+brain/state/*.csv.tmp

@@ -42,7 +42,8 @@ def test_trains_neural_net_on_synthetic_history(tmp_path, monkeypatch):
         for day in range(0, 30, 3):
             d = start + timedelta(days=day)
             fl = popular and day >= 9
-            con.execute("INSERT INTO item_snapshots VALUES (?,?,?,?,?,?,?,?,?,?)",
+            con.execute("INSERT INTO item_snapshots (sku, snap_date, name, report_count, n_states, "
+                        "has_fl, n_sources, receipt, retail, days_listed) VALUES (?,?,?,?,?,?,?,?,?,?)",
                         (str(i), d.isoformat(), "LED light" if popular else "bag", reports,
                          8 if popular else 1, int(fl), 2 if popular else 1, 0, 20.0, day))
     con.commit()

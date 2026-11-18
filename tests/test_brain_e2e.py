@@ -79,7 +79,7 @@ def test_full_daily_cycle(tmp_path, monkeypatch):
     daily = (tmp_path / "reports" / day[:4] / day[5:7] / f"{day}.md").read_text(encoding="utf-8")
     index = (tmp_path / "reports" / "README.md").read_text(encoding="utf-8")
     assert "Red entrenada" in dash and "Predicciones" in dash and "Registro diario" in dash
-    assert "Predicciones" in daily and "❌ falló" in daily and "1015277793=penny" in daily
+    assert "Predicciones" in daily and "❌ falló" in daily and "Aciertos" in daily
     assert index.count("\n| ") >= 30
 
     # second run the same day must not duplicate anything

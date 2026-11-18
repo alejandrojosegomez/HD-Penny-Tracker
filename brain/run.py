@@ -21,7 +21,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from . import brain, community, dashboard, notify
+from . import brain, community, dashboard, notify, store
 
 ROOT = Path(__file__).parent
 REPORTS = ROOT / "reports"
@@ -32,47 +32,30 @@ def _line(r) -> str:
     return f"{(r['name'] or '')[:55]}{price} — SKU {r['sku']} · {r['reports']} reportes"
 
 
-def build(con, counts: dict, rep: dict) -> tuple[str, str]:
-    """Returns (telegram_text, markdown_report)."""
+def accuracy_line(acc: dict) -> str:
+    """'🎯 Aciertos: extendiéndose 7/10 (70%) · red 6/10 · al azar 12%' or when it starts."""
+    parts = []
+    for key, label in (("spreading", "extendiéndose"), ("network", "red")):
+        a = acc.get(key)
+        if a:
+            parts.append(f"{label} {a['hits']}/{a['judged']} ({a['rate'] * 100:.0f}%)")
+    if not parts:
+        when = acc.get("first_judged_on")
+        return f"🎯 Aciertos: se miden desde el {when}" if when else "🎯 Aciertos: aún sin predicciones"
+    rnd = acc.get("random")
+    return "🎯 Aciertos: " + " · ".join(parts) + (f" · al azar {rnd['rate'] * 100:.0f}%" if rnd else "")
+
+
+def build(con, counts: dict, rep: dict) -> str:
+    """Plain-text summary for the job log."""
     hot = community.hottest(con, days=7, limit=40)
     fl = [r for r in hot if r["states"] and "FL" in r["states"].split(",")][:8]
-    top = hot[:5]
     total = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports").fetchone()[0]
-    new_today = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports "
-                            "WHERE date(first_collected) = date('now')").fetchone()[0]
-    failed = [k for k, v in counts.items() if v == -1]
-
-    if rep.get("trained"):
-        brain_lines = [f"Entrenada con {rep['labeled']} ejemplos · AUC {rep['cv_auc']}"]
-        if rep.get("predictions"):
-            brain_lines.append("Probables en FLORIDA pronto:")
-            brain_lines += [f"{p*100:.0f}% · {n[:50]} (SKU {s})" for p, s, n in rep["predictions"][:5]]
-    else:
-        brain_lines = [f"Juntando datos: día {rep['snapshot_days']} de ~{brain.HORIZON_DAYS + 1} "
-                       f"({rep['labeled']} ejemplos listos)"]
-    brain_lines.append(f"Tus escaneos guardados: {rep['total_outcomes']}"
-                       + (f" (+{len(rep['new_outcomes'])} nuevos)" if rep["new_outcomes"] else ""))
-
-    tg = ["🟠 HD Penny Tracker — resumen diario",
-          f"Base: {total} productos · {new_today} nuevos hoy"]
-    if fl:
-        tg += ["", "📍 Reportados en FLORIDA (7 días):"] + [f"• {_line(r)}" for r in fl]
-    tg += ["", "🔥 Más fuertes en todo el país:"] + [f"• {_line(r)}" for r in top]
-    tg += ["", "🧠 Red neuronal"] + brain_lines
-    if failed:
-        tg += ["", f"⚠️ Fuentes con error: {', '.join(failed)}"]
-    tg += ["", "Reporta así: /penny SKU tienda  o  /no SKU tienda"]
-
-    md = [f"# Reporte del cerebro — {date.today().isoformat()}", "",
-          f"- Productos en la base: **{total}** ({new_today} nuevos hoy)",
-          f"- Fuentes: " + ", ".join(f"{k} {'❌' if v == -1 else v}" for k, v in counts.items()
-                                     if not k.startswith("_")),
-          f"- Estado del modelo: {rep['status']}", ""]
-    md += ["## 🧠 Red neuronal", ""] + [f"- {x}" for x in brain_lines] + [""]
-    if fl:
-        md += ["## 📍 Reportados en Florida (7 días)", ""] + [f"- {_line(r)}" for r in fl] + [""]
-    md += ["## 🔥 Más fuertes en todo el país", ""] + [f"- {_line(r)}" for r in top] + [""]
-    return "\n".join(tg), "\n".join(md)
+    lines = [f"Productos: {total}", f"En Florida (7 días): {len(fl)}", f"Modelo: {rep['status']}",
+             accuracy_line(rep.get("accuracy") or {}), "Se están extendiendo:"]
+    lines += [f"  +{r['states_gain_7d']} estados · {(r['name'] or '')[:50]} ({r['sku']})"
+              for r in rep.get("spreading") or []]
+    return "\n".join(lines)
 
 
 def caption(con, counts: dict, rep: dict, limit: int = 1024) -> str:
@@ -80,9 +63,10 @@ def caption(con, counts: dict, rep: dict, limit: int = 1024) -> str:
     e = html.escape
     hot = community.hottest(con, days=7, limit=40)
     fl = [r for r in hot if r["states"] and "FL" in r["states"].split(",")]
+    spread = rep.get("spreading") or []
     total = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports").fetchone()[0]
     new = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports "
-                      "WHERE date(first_collected) = date('now')").fetchone()[0]
+                      "WHERE date(first_collected) = date('now', 'localtime')").fetchone()[0]
     days = rep.get("snapshot_days", 0)
     target = brain.HORIZON_DAYS + 1
 
@@ -90,6 +74,10 @@ def caption(con, counts: dict, rep: dict, limit: int = 1024) -> str:
         name = (r["name"] or "")[:n].rstrip()
         price = f" ${r['retail']:.0f}" if r["retail"] else ""
         return f"• {e(name)}{price}\n   <code>{r['sku']}</code> · {r['reports']} rep."
+
+    def sitem(r, n=34):
+        return (f"• {e((r['name'] or '')[:n].rstrip())}\n   <code>{r['sku']}</code> · "
+                f"+{r['states_gain_7d']} estados ({r['n_states']} en total)")
 
     head = [f"✅ <b>Actualización lista</b> · día {days}"
             + ("" if rep.get("trained") else f" de {target}"),
@@ -100,22 +88,63 @@ def caption(con, counts: dict, rep: dict, limit: int = 1024) -> str:
     else:
         filled = round(10 * min(days, target) / target)
         brain_l = [f"🧠 Aprendiendo {'▰' * filled}{'▱' * (10 - filled)} {min(days, target)}/{target}"]
-    brain_l.append(f"📝 Escaneos: {rep['total_outcomes']}"
-                   + (f" (+{len(rep['new_outcomes'])} hoy)" if rep["new_outcomes"] else ""))
+    brain_l.append(accuracy_line(rep.get("accuracy") or {}))
     failed = [k for k, v in counts.items() if v == -1]
-    tail = brain_l + ([f"⚠️ Fuentes con error: {', '.join(failed)}"] if failed else []) \
-        + ["", "<i>/penny SKU tienda · /no SKU tienda</i>"]
+    tail = brain_l + ([f"⚠️ Fuentes con error: {', '.join(failed)}"] if failed else [])
 
-    for n_fl, n_top in ((5, 3), (4, 2), (3, 2), (3, 1), (2, 0), (1, 0)):
+    for n_fl, n_sp in ((4, 3), (3, 3), (3, 2), (2, 2), (2, 1), (1, 1), (1, 0), (0, 0)):
         body = []
-        if fl:
+        if fl and n_fl:
             body += ["📍 <b>En Florida (7 días)</b>"] + [item(r) for r in fl[:n_fl]] + [""]
-        if n_top:
-            body += ["🔥 <b>Más fuertes del país</b>"] + [item(r) for r in hot[:n_top]] + [""]
+        if spread and n_sp:
+            body += ["🔥 <b>Se están extendiendo</b> (aún no en FL)"] + [sitem(r) for r in spread[:n_sp]] + [""]
         text = "\n".join(head + body + tail)
         if len(text) <= limit:
             return text
     return "\n".join(head + tail)[:limit]
+
+
+def weekly_message(con, rep: dict) -> str:
+    from . import insights
+    e = html.escape
+    w = insights.weekly(con)
+    lines = ["📅 <b>Resumen de la semana</b> · Penny Brain", "",
+             f"📦 {w['new_products']} productos nuevos esta semana",
+             f"📍 En Florida: {w['fl_now']} (hace 7 días: {w['fl_week_ago']})",
+             accuracy_line(rep.get("accuracy") or {})]
+    if w["arrived_fl"]:
+        lines += ["", "🆕 <b>Llegaron a Florida esta semana</b>"]
+        lines += [f"• {e((a['name'] or '')[:45])} <code>{a['sku']}</code>" for a in w["arrived_fl"][:8]]
+    spread = rep.get("spreading") or []
+    if spread:
+        lines += ["", "🔥 <b>Los que más se extienden</b>"]
+        lines += [f"• +{r['states_gain_7d']} estados · {e((r['name'] or '')[:40])} <code>{r['sku']}</code>"
+                  for r in spread[:5]]
+    if w["source_errors"]:
+        lines += ["", "⚠️ Fuentes con errores: " + ", ".join(f"{k} ({v})" for k, v in w["source_errors"].items())]
+    return "\n".join(lines)[:4000]
+
+
+def export_products(con) -> None:
+    """brain/products.csv: one row per product with its latest numbers, for Excel/Sheets."""
+    last = con.execute("SELECT MAX(snap_date) FROM item_snapshots").fetchone()[0]
+    rows = con.execute(
+        """SELECT c.sku, MAX(c.name) name, MAX(c.internet_number) internet_number, MAX(c.retail) retail,
+                  MIN(c.reported_at) first_reported, MAX(c.reported_at) last_reported,
+                  GROUP_CONCAT(DISTINCT c.source) sources,
+                  s.report_count, s.n_states, s.has_fl, s.states_gain_7d, s.reports_gain_7d
+           FROM community_reports c
+           LEFT JOIN item_snapshots s ON s.sku = c.sku AND s.snap_date = ?
+           GROUP BY c.sku ORDER BY s.has_fl DESC, s.states_gain_7d DESC, s.report_count DESC""",
+        (last,)).fetchall()
+    with open(ROOT / "products.csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f, lineterminator="\n")
+        w.writerow(["sku", "name", "internet_number", "retail", "first_reported", "last_reported",
+                    "sources", "reports", "states", "in_florida", "states_gained_7d",
+                    "reports_gained_7d", "homedepot_link"])
+        for r in rows:
+            w.writerow([*[("" if v is None else v) for v in tuple(r)],
+                        f"https://www.homedepot.com/s/{r['sku']}"])
 
 
 def main() -> int:
@@ -134,11 +163,13 @@ def main() -> int:
         con = brain.connect()
         prog.step("Juntando listas de la comunidad")
         counts = community.collect(con)
-        prog.step("Leyendo tus escaneos y entrenando la red")
+        prog.step("Buscando los que se extienden y entrenando la red")
         rep = brain.run_daily(con)
         prog.step("Generando el reporte")
-        tg, md = build(con, counts, rep)
+        tg = build(con, counts, rep)
         dashboard.render(con, counts, rep)
+        export_products(con)
+        store.save(con)                 # CSV state that the workflow commits
     except Exception as e:
         prog.finish(f"❌ La actualización falló: {type(e).__name__}: {str(e)[:200]}", ok=False)
         raise
@@ -152,6 +183,8 @@ def main() -> int:
     sent = True
     if not args.no_send:
         sent = prog.finish(caption(con, counts, rep))
+        if date.today().weekday() == 6:          # Sunday
+            notify.send(weekly_message(con, rep), html=True)
         if not sent:
             print("::error::Telegram message was not delivered (check TELEGRAM_TOKEN / TELEGRAM_CHAT_ID secrets)")
     # every source failing means the run learned nothing new: fail the job so you see it

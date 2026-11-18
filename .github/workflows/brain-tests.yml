@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: brain/requirements.txt
       - run: pip install -r brain/requirements.txt pytest
-      - run: python -m pytest -q tests/test_brain.py tests/test_brain_e2e.py tests/test_brain_alert.py -W ignore::UserWarning
+      - run: python -m pytest -q tests/test_brain.py tests/test_brain_e2e.py tests/test_brain_alert.py tests/test_brain_insights.py -W ignore::UserWarning

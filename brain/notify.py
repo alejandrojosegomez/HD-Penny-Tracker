@@ -6,7 +6,7 @@ import os
 import requests
 
 
-def send(text: str) -> bool:
+def send(text: str, html: bool = False) -> bool:
     token = os.getenv("TELEGRAM_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     if not token or not chat_id:
@@ -14,7 +14,8 @@ def send(text: str) -> bool:
         return False
     r = requests.post(
         f"https://api.telegram.org/bot{token}/sendMessage",
-        json={"chat_id": chat_id, "text": text, "disable_web_page_preview": True},
+        json={"chat_id": chat_id, "text": text, "disable_web_page_preview": True,
+              **({"parse_mode": "HTML"} if html else {})},
         timeout=15,
     )
     if not r.ok:

@@ -31,12 +31,12 @@ def history(con) -> list[dict]:
         active = con.execute("SELECT items FROM snapshot_runs WHERE snap_date = ?", (d,)).fetchone()[0]
         fl = con.execute("SELECT COUNT(*) FROM item_snapshots WHERE snap_date = ? AND has_fl = 1",
                          (d,)).fetchone()[0]
-        scans = con.execute("SELECT COUNT(*) FROM scan_outcomes WHERE date(noted_at) = ?",
-                            (d,)).fetchone()[0]
+        spread = con.execute("SELECT COUNT(*) FROM item_snapshots WHERE snap_date = ? AND has_fl = 0 "
+                             "AND states_gain_7d > 0", (d,)).fetchone()[0]
         src = {r[0]: r[1] for r in con.execute(
             "SELECT source, MAX(CASE WHEN status='ok' THEN items ELSE -1 END) FROM collect_runs "
             "WHERE date(ran_at) = ? GROUP BY source", (d,))}
-        out.append(dict(date=d, total=total, new=new, active=active, fl=fl, scans=scans, sources=src))
+        out.append(dict(date=d, total=total, new=new, active=active, fl=fl, spread=spread, sources=src))
     return out
 
 
@@ -89,6 +89,14 @@ def _pred_table(preds) -> list[str]:
     return out
 
 
+def _spread_table(rows) -> list[str]:
+    out = ["| # | Producto | SKU | Estados ganados (7 días) | Estados | Reportes |", "|--:|---|---|:-:|--:|--:|"]
+    for i, r in enumerate(rows, 1):
+        out.append(f"| {i} | {_hd(r['sku'], r['name'])} | `{r['sku']}` | **+{r['states_gain_7d']}** "
+                   f"| {r['n_states']} | {r['report_count']} |")
+    return out
+
+
 def _chart(hist: list[dict]) -> list[str]:
     if len(hist) < 2:
         return ["_El gráfico aparece a partir del segundo día._"]
@@ -122,7 +130,9 @@ def render(con, counts: dict, rep: dict) -> None:
     days = len(hist)
     total = hist[-1]["total"] if hist else 0
     new = hist[-1]["new"] if hist else 0
-    scans_total = rep.get("total_outcomes", 0)
+    spread = rep.get("spreading") or []
+    from .run import accuracy_line
+    acc_line = accuracy_line(rep.get("accuracy") or {})
     fl = _fl(con)
     top = community.hottest(con, days=7, limit=10)
     preds = rep.get("predictions") or []
@@ -140,18 +150,18 @@ def render(con, counts: dict, rep: dict) -> None:
                  for k, v in src_ok.items()]
     daily = [f"# 🧠 Reporte del cerebro — {today}", "",
              f"[← Panel](../../../README.md) · [Todos los reportes](../../README.md)", "",
-             "| Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Tus escaneos |",
+             "| Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Extendiéndose |",
              "|:-:|:-:|:-:|:-:|:-:|",
              f"| **{total}** | **{new}** | **{hist[-1]['active'] if hist else 0}** "
-             f"| **{hist[-1]['fl'] if hist else 0}** | **{scans_total}** |", "",
-             f"**Red neuronal:** {state}", ""]
+             f"| **{hist[-1]['fl'] if hist else 0}** | **{hist[-1]['spread'] if hist else 0}** |", "",
+             f"**Red neuronal:** {state}", "", f"**{acc_line}**", ""]
     if preds:
         daily += ["## 🔮 Predicciones: llegarían a Florida pronto", ""] + _pred_table(preds) + [""]
+    if spread:
+        daily += ["## 🔥 Se están extendiendo (aún no en Florida)", ""] + _spread_table(spread) + [""]
     daily += ["## 📍 Reportados en Florida (últimos 7 días)", ""]
     daily += (_item_table(fl, with_states=False) if fl else ["_Ninguno esta semana._"]) + [""]
     daily += ["## 🔥 Más fuertes en todo el país (7 días)", ""] + _item_table(top) + [""]
-    if rep.get("new_outcomes"):
-        daily += ["## 📝 Escaneos tuyos leídos hoy", ""] + [f"- `{x}`" for x in rep["new_outcomes"]] + [""]
     daily += ["## 🌐 Fuentes", "", "| Fuente | Estado | Productos |", "|---|:-:|--:|"] + src_lines + [""]
     daily += ["<sub>Generado automáticamente por GitHub Actions. "
               "Los enlaces abren la búsqueda del SKU en homedepot.com.</sub>", ""]
@@ -164,12 +174,12 @@ def render(con, counts: dict, rep: dict) -> None:
 
     # ---- reports index
     idx = ["# 📚 Todos los reportes diarios", "", "[← Panel](../README.md)", "",
-           "| Día | Productos | Nuevos | Activos | En FL | Escaneos | Fuentes |",
+           "| Día | Productos | Nuevos | Activos | En FL | Extendiéndose | Fuentes |",
            "|---|--:|--:|--:|--:|--:|:-:|"]
     for h in reversed(hist):
         p = _report_path(h["date"])
         link = f"[{h['date']}]({p.relative_to(REPORTS).as_posix()})" if p.exists() else h["date"]
-        idx.append(f"| {link} | {h['total']} | {h['new']} | {h['active']} | {h['fl']} | {h['scans']} "
+        idx.append(f"| {link} | {h['total']} | {h['new']} | {h['active']} | {h['fl']} | {h['spread']} "
                    f"| {_src_cell(h['sources'])} |")
     (REPORTS / "README.md").write_text("\n".join(idx) + "\n", encoding="utf-8")
 
@@ -178,7 +188,7 @@ def render(con, counts: dict, rep: dict) -> None:
 
     trained = rep.get("trained")
     done = min(days, TARGET_DAYS)
-    rows = ["| Día | Fecha | Estado | Productos | Nuevos | En FL | Escaneos | Reporte |",
+    rows = ["| Día | Fecha | Estado | Productos | Nuevos | En FL | Extendiéndose | Reporte |",
             "|:-:|---|---|--:|--:|--:|--:|:-:|"]
     for i, h in enumerate(hist, 1):
         if i == len(hist) and trained:
@@ -190,7 +200,7 @@ def render(con, counts: dict, rep: dict) -> None:
         p = _report_path(h["date"])
         link = f"[ver]({p.relative_to(ROOT).as_posix()})" if p.exists() else "—"
         rows.append(f"| {i} | {h['date']} | {st} | {h['total']} | {h['new']} | {h['fl']} "
-                    f"| {h['scans']} | {link} |")
+                    f"| {h['spread']} | {link} |")
     last = date.fromisoformat(hist[-1]["date"]) if hist else date.today()
     upcoming = max(TARGET_DAYS - days, 1)          # until first training, then just tomorrow
     for k in range(1, upcoming + 1):
@@ -209,11 +219,15 @@ def render(con, counts: dict, rep: dict) -> None:
             f"para el primer entrenamiento")
     dash = ["# 🧠 Penny Brain", "",
             "Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen por Telegram.", "",
-            head, "",
+            head, "", acc_line, "",
             "## 📅 Registro diario", "", *rows, ""]
     if preds:
-        dash += ["## 🔮 Predicciones de hoy", ""] + _pred_table(preds[:5]) + [""]
+        dash += ["## 🔮 Predicciones de la red", ""] + _pred_table(preds[:5]) + [""]
+    if spread:
+        dash += ["## 🔥 Se están extendiendo (aún no en Florida)", ""] + _spread_table(spread[:5]) + [""]
     dash += ["<sub>Productos = total en la base · Nuevos = vistos por primera vez ese día · "
-             "En FL = activos reportados en Florida · Escaneos = tus /penny y /no de ese día. "
+             "En FL = activos reportados en Florida · Extendiéndose = sin FL todavía pero ganando estados "
+             "en los últimos 7 días · Aciertos = cuántas de esas listas llegaron a Florida en 14 días. "
+             "Datos para Excel: [products.csv](products.csv) · "
              "Todos los reportes: [reports/](reports/README.md)</sub>", ""]
     (ROOT / "README.md").write_text("\n".join(dash), encoding="utf-8")

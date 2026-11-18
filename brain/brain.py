@@ -2,7 +2,7 @@
 
 Every daily run:
   1. snapshot()  - saves one row per item with today's community signals
-  2. read_telegram_outcomes() - stores your in-store scan results (/penny SKU, /no SKU)
+  2. read_telegram_outcomes() - stores optional scan results (/penny SKU, /no SKU)
   3. train()     - rebuilds the dataset from all snapshots and retrains the network
                    (only once there is enough labeled history; until then it says so)
   4. predict()   - ranks today's non-Florida items by probability of reaching FL
@@ -40,13 +40,15 @@ KEYWORDS = {
     "kw_electric": r"outlet|usb|surge|switch|wire|doorbell",
 }
 FEATURES = ["report_count", "n_states", "n_sources", "receipt", "retail_log",
-            "days_listed", *KEYWORDS]
+            "days_listed", "states_gain_7d", "reports_gain_7d", *KEYWORDS]
+MOMENTUM_DAYS = 7
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS item_snapshots (
   sku TEXT NOT NULL, snap_date TEXT NOT NULL, name TEXT,
   report_count INTEGER, n_states INTEGER, has_fl INTEGER, n_sources INTEGER,
   receipt INTEGER, retail REAL, days_listed INTEGER,
+  states_gain_7d INTEGER DEFAULT 0, reports_gain_7d INTEGER DEFAULT 0,
   PRIMARY KEY (sku, snap_date)
 );
 CREATE TABLE IF NOT EXISTS snapshot_runs (snap_date TEXT PRIMARY KEY, items INTEGER);
@@ -55,12 +57,24 @@ CREATE TABLE IF NOT EXISTS scan_outcomes (
   result TEXT NOT NULL,            -- 'penny' | 'not_penny'
   noted_at TEXT NOT NULL, source TEXT DEFAULT 'telegram'
 );
+CREATE TABLE IF NOT EXISTS predictions (       -- every pick we publish, to score it later
+  pred_date TEXT NOT NULL, method TEXT NOT NULL, rank INTEGER NOT NULL,
+  sku TEXT NOT NULL, name TEXT, score REAL,
+  PRIMARY KEY (pred_date, method, sku)
+);
 """
 
 
-def connect():
-    con = community.connect()
+def connect(path=None):
+    """Opens the working database and fills it from the CSV state on a fresh checkout."""
+    from . import store
+    con = community.connect(path) if path else community.connect()
     con.executescript(SCHEMA)
+    cols = {r[1] for r in con.execute("PRAGMA table_info(item_snapshots)")}
+    for c in ("states_gain_7d", "reports_gain_7d"):            # older databases
+        if c not in cols:
+            con.execute(f"ALTER TABLE item_snapshots ADD COLUMN {c} INTEGER DEFAULT 0")
+    store.load(con)
     return con
 
 
@@ -73,14 +87,26 @@ def snapshot(con, today: str | None = None) -> int:
                   MAX(receipt_confirmed) rcpt, MAX(retail) retail, MIN(reported_at) first_seen
            FROM community_reports
            WHERE date(reported_at) >= date(?, '-14 day')
-           GROUP BY sku""", (today,)).fetchall()
+             AND date(reported_at) <= date(?)              -- never look into the future
+           GROUP BY sku""", (today, today)).fetchall()
     for r in rows:
         states = {s for s in (r["st"] or "").split(",") if s}
         days = (date.fromisoformat(today) - date.fromisoformat(r["first_seen"][:10])).days
+        # momentum: compare with this item's oldest snapshot in the last 7 days
+        prev = con.execute(
+            """SELECT n_states, report_count FROM item_snapshots
+               WHERE sku = ? AND snap_date < ? AND snap_date >= date(?, ?)
+               ORDER BY snap_date LIMIT 1""",
+            (r["sku"], today, today, f"-{MOMENTUM_DAYS} day")).fetchone()
+        s_gain = max(len(states) - (prev["n_states"] or 0), 0) if prev else 0
+        r_gain = max((r["rc"] or 0) - (prev["report_count"] or 0), 0) if prev else 0
         con.execute(
-            """INSERT OR REPLACE INTO item_snapshots VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            """INSERT OR REPLACE INTO item_snapshots
+               (sku, snap_date, name, report_count, n_states, has_fl, n_sources, receipt,
+                retail, days_listed, states_gain_7d, reports_gain_7d)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             (r["sku"], today, r["name"], r["rc"], len(states), int("FL" in states),
-             r["ns"], r["rcpt"] or 0, r["retail"], max(days, 0)))
+             r["ns"], r["rcpt"] or 0, r["retail"], max(days, 0), s_gain, r_gain))
     con.execute("INSERT OR REPLACE INTO snapshot_runs VALUES (?,?)", (today, len(rows)))
     con.commit()
     return len(rows)
@@ -126,7 +152,8 @@ def _features(row) -> list[float]:
     import math
     name = (row["name"] or "").lower()
     base = [row["report_count"] or 0, row["n_states"] or 0, row["n_sources"] or 0,
-            row["receipt"] or 0, math.log1p(row["retail"] or 0), row["days_listed"] or 0]
+            row["receipt"] or 0, math.log1p(row["retail"] or 0), row["days_listed"] or 0,
+            row["states_gain_7d"] or 0, row["reports_gain_7d"] or 0]
     return base + [int(bool(re.search(p, name))) for p in KEYWORDS.values()]
 
 
@@ -205,7 +232,12 @@ def run_daily(con=None) -> dict:
     report["snapshot_items"] = n
     report["new_outcomes"] = outcomes
     report["total_outcomes"] = con.execute("SELECT COUNT(*) FROM scan_outcomes").fetchone()[0]
-    report["predictions"] = predict(con)
+    # only use a model trained in this run: an older file may expect other features
+    report["predictions"] = predict(con) if report.get("trained") else []
+    from . import insights
+    report["spreading"] = insights.spreading(con)
+    insights.log_predictions(con, report)
+    report["accuracy"] = insights.evaluate(con)
     return report
 
 
