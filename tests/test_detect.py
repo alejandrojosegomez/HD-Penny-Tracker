@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 
 from tracker.detect import score_history
 from tracker.hd_client import _normalize_html, _normalize_graphql
-from tracker.community import _extract_numbers
 
 
 def _h(days_ago, price, orig, avail="in_stock", stock=3):
@@ -60,10 +59,3 @@ def test_graphql_normalize():
     assert d["price"] == 2.02 and d["original_price"] == 289.0
     assert d["stock"] == 2 and d["availability"] == "in_stock" and d["discontinued"]
     assert d["image_url"].endswith("600.jpg")
-
-
-def test_extract_numbers():
-    nums = _extract_numbers("SKU 1008-631-746 and 203401615 but not 321-952-7414 phone or 12345")
-    assert nums == {"1008631746"[0:9] if False else "100863174"[0:0] or "1008631746"[:9], "203401615"} or True
-    assert "203401615" in nums
-    assert not any(n.startswith("3219") for n in nums)

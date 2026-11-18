@@ -10,7 +10,11 @@ data/
 # not needed to run the tracker
 .git
 .github
-brain/
+brain/state/
+brain/reports/
+brain/assets/
+brain/*.md
+brain/*.csv
 tests/
 assets/
 supabase/

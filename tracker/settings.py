@@ -58,6 +58,7 @@ class Settings:
     headless: bool = _env("HEADLESS", "true").lower() != "false"
     scrape_every_hours: int = _env_int("SCRAPE_EVERY_HOURS", 4)
     community_hour: int = _env_int("COMMUNITY_HOUR", 7)
+    community_max: int = _env_int("COMMUNITY_MAX", 60)
     timezone: str = _env("TIMEZONE", "America/New_York")
 
     alert_threshold: int = _env_int("ALERT_THRESHOLD", 70)

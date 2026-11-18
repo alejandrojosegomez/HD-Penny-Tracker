@@ -34,13 +34,25 @@ def community_job() -> None:
         send(f"HD Penny Tracker: community job crashed: {e}")
 
 
+def scrape_after_community() -> None:
+    community_job()
+    scrape_then_detect()
+
+
 def main() -> None:
     sched = BlockingScheduler(timezone=settings.timezone)
     every = max(1, settings.scrape_every_hours)
     # 6:00 .. 22:00 local, every `every` hours
     hours = ",".join(str(h) for h in range(6, 23, every))
-    sched.add_job(scrape_then_detect, CronTrigger(hour=hours, minute=5), id="scrape", max_instances=1, coalesce=True)
-    sched.add_job(community_job, CronTrigger(hour=settings.community_hour, minute=0), id="community", max_instances=1, coalesce=True)
+    # misfire_grace_time: if the PC was asleep at the scheduled time, still run when it wakes
+    # (up to a few hours late) instead of silently skipping the job
+    sched.add_job(scrape_then_detect, CronTrigger(hour=hours, minute=5), id="scrape",
+                  max_instances=1, coalesce=True, misfire_grace_time=3 * 3600)
+    sched.add_job(community_job, CronTrigger(hour=settings.community_hour, minute=0), id="community",
+                  max_instances=1, coalesce=True, misfire_grace_time=12 * 3600)
+    # catch up at start-up: nothing to scrape until the community list has run once today
+    if not community.ran_today():
+        sched.add_job(scrape_after_community, id="catch-up", max_instances=1)
 
     def _stop(*_):
         log.info("stopping")

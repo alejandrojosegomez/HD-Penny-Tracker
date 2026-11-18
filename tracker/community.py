@@ -1,80 +1,128 @@
-"""Pulls Home Depot internet numbers from public community penny lists.
+"""Pulls items from the public community penny lists and decides which ones to watch.
 
-These are small static sites; they are fetched once a day with a plain client and a
-descriptive user agent. Every 9-digit number found on the page is treated as a candidate
-internet number, de-duplicated, stored in community_reports and added to the watchlist
-with source=community so the next scrape checks it in my stores.
+Uses the same structured parsers as the brain (brain/community.py), so a product is only
+watched when the list links to its Home Depot page and we get a real 9-digit internet
+number. SKUs, UPCs, phone numbers and zip codes are never treated as internet numbers.
 
-Add or remove sources in SOURCES. Each entry is (name, url).
+The community watch set is kept small on purpose (COMMUNITY_MAX, default 60): every item
+costs one Home Depot request per store per scrape, and too many requests get the IP blocked.
+Ranking: reported in Florida first, then most reports, then most recent. Community items
+that drop out of the set are deactivated (history kept). Manual items are never touched.
 """
 from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime, timezone
+import time
+from datetime import date, timedelta
 
 import httpx
-from bs4 import BeautifulSoup
 
-from .settings import append_watchlist
+from brain.community import PARSERS, SOURCES, UA
+
+from .settings import settings
 from .storage import get_storage
 
 log = logging.getLogger("tracker.community")
 
-SOURCES = [
-    ("pennycentral", "https://www.pennycentral.com/"),
-    ("pennyrecon", "https://www.pennyrecon.com/"),
-    ("pennypinchinmom", "https://pennypinchinmom.com/home-depot-penny-list/"),
-    ("paydirt", "https://paydirt.gg/home-depot-penny-list/"),
-]
-
-UA = "HD-Penny-Tracker/1.0 (personal price tracker; contact via GitHub alejandrojosegomez)"
-# Internet numbers are 9 digits (older, e.g. 203401615) or 10 digits (newer, e.g. 1008631746).
-# Also accepts the dashed 1008-631-746 style some lists use.
-NUM_RE = re.compile(r"(?<!\d)(\d{3,4})-?(\d{3})-?(\d{3})(?!\d)")
+INET_RE = re.compile(r"^\d{9}$")
+RECENT_DAYS = 14
 
 
-def _extract_numbers(text: str) -> set[str]:
-    out = set()
-    for a, b, c in NUM_RE.findall(text):
-        n = a + b + c
-        # internet numbers start with 1,2 or 3 in practice; drop obvious phone numbers / zips glued together
-        if n[0] in "123" and len(n) in (9, 10):
-            out.add(n)
-    return out
-
-
-def fetch_source(name: str, url: str) -> set[str]:
-    r = httpx.get(url, headers={"user-agent": UA}, timeout=40, follow_redirects=True)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "lxml")
-    for t in soup(["script", "style", "noscript"]):
-        t.decompose()
-    text = soup.get_text(" ", strip=True)
-    nums = _extract_numbers(text)
-    log.info("%s: %d candidate numbers", name, len(nums))
-    return nums
-
-
-def refresh() -> dict:
-    db = get_storage()
-    run_id = db.start_run("community")
-    today = datetime.now(timezone.utc).date().isoformat()
-    stats = {}
-    for name, url in SOURCES:
+def fetch_items(sources: dict = SOURCES) -> tuple[list[dict], dict]:
+    """Downloads and parses every source. Returns (items, per-source stats)."""
+    today = date.today().isoformat()
+    items, stats = [], {}
+    for name, url in sources.items():
         try:
-            nums = fetch_source(name, url)
-        except Exception as e:
+            r = httpx.get(url, headers=UA, timeout=40, follow_redirects=True)
+            r.raise_for_status()
+            parsed = PARSERS[name](r.text, today)
+            for it in parsed:
+                it["source"], it["source_url"] = name, url
+            items += parsed
+            stats[name] = {"found": len(parsed),
+                           "with_internet_number": sum(1 for i in parsed if _inet(i))}
+        except Exception as e:  # one broken source must not stop the others
             log.warning("%s failed: %s", name, e)
             stats[name] = f"error: {e}"
+        time.sleep(1)
+    return items, stats
+
+
+def _inet(item: dict) -> str | None:
+    n = (item.get("internet_number") or "").strip()
+    return n if INET_RE.match(n) else None
+
+
+def pick_watch_set(items: list[dict], limit: int, today: date | None = None) -> list[dict]:
+    """One entry per internet number, recent only, best candidates first."""
+    today = today or date.today()
+    cutoff = (today - timedelta(days=RECENT_DAYS)).isoformat()
+    best: dict[str, dict] = {}
+    for it in items:
+        n = _inet(it)
+        if not n or (it.get("reported_at") or "") < cutoff:
             continue
-        new_reports = new_watch = 0
-        for n in nums:
-            if db.add_community_report(n, name, url, today):
+        states = {s for s in (it.get("states") or "").split(",") if s}
+        cur = best.setdefault(n, {"internet_number": n, "name": None, "fl": False, "reports": 0,
+                                  "last": "", "sources": set()})
+        cur["name"] = cur["name"] or it.get("name")
+        cur["fl"] |= "FL" in states
+        cur["reports"] = max(cur["reports"], it.get("report_count") or 0)
+        cur["last"] = max(cur["last"], it.get("reported_at") or "")
+        cur["sources"].add(it["source"])
+    ranked = sorted(best.values(), key=lambda c: (c["fl"], c["reports"], c["last"]), reverse=True)
+    return ranked[:limit]
+
+
+def refresh(sources: dict = SOURCES) -> dict:
+    db = get_storage()
+    run_id = db.start_run("community")
+    items, stats = fetch_items(sources)
+    try:
+        # reports keyed by internet number, so detect.py's "on a penny list" signal matches
+        new_reports = 0
+        for it in items:
+            n = _inet(it)
+            if n and db.add_community_report(n, it["source"], it["source_url"], it.get("reported_at")):
                 new_reports += 1
-            if append_watchlist(n, category="", note=f"from {name}", source="community"):
-                new_watch += 1
-        stats[name] = {"found": len(nums), "new_reports": new_reports, "added_to_watchlist": new_watch}
-    db.finish_run(run_id, True, str(stats))
-    log.info("community refresh: %s", stats)
-    return stats
+
+        if not any(isinstance(v, dict) for v in stats.values()):
+            raise RuntimeError("every community source failed; watch set left unchanged")
+
+        watch = pick_watch_set(items, settings.community_max)
+        keep = {w["internet_number"] for w in watch}
+        added = 0
+        for w in watch:
+            existing = db.product_by_internet_number(w["internet_number"])
+            if existing and existing.get("source") != "community":
+                continue                         # manual item: leave it as the user set it
+            if not existing or not existing.get("active"):
+                added += 1
+            db.upsert_product(w["internet_number"], name=(existing or {}).get("name") or w["name"],
+                              source="community", active=1)
+        retired = 0
+        for p in db.products(active_only=True):
+            if p.get("source") == "community" and p["internet_number"] not in keep:
+                db.upsert_product(p["internet_number"], active=0)
+                retired += 1
+
+        summary = {"sources": stats, "new_reports": new_reports, "watching": len(watch),
+                   "added": added, "retired": retired}
+        db.finish_run(run_id, True, str(summary))
+        log.info("community refresh: %s", summary)
+        return summary
+    except Exception as e:
+        db.finish_run(run_id, False, f"{e} | {stats}")
+        raise
+
+
+def ran_today() -> bool:
+    """True if a successful community refresh already started today (UTC date)."""
+    from .storage import now_iso
+    today = now_iso()[:10]
+    for r in get_storage().last_runs(50):
+        if r["job"] == "community" and r.get("ok") and (r.get("started_at") or "")[:10] == today:
+            return True
+    return False
