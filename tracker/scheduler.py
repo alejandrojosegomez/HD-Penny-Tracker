@@ -39,6 +39,19 @@ def scrape_after_community() -> None:
     scrape_then_detect()
 
 
+def detect_job() -> None:
+    try:
+        detect.run()
+    except Exception as e:
+        log.exception("detect job crashed")
+        send(f"HD Penny Tracker: detect job crashed: {e}")
+
+
+def community_then_detect() -> None:
+    community_job()
+    detect_job()
+
+
 def main() -> None:
     sched = BlockingScheduler(timezone=settings.timezone)
     every = max(1, settings.scrape_every_hours)
@@ -46,13 +59,21 @@ def main() -> None:
     hours = ",".join(str(h) for h in range(6, 23, every))
     # misfire_grace_time: if the PC was asleep at the scheduled time, still run when it wakes
     # (up to a few hours late) instead of silently skipping the job
-    sched.add_job(scrape_then_detect, CronTrigger(hour=hours, minute=5), id="scrape",
-                  max_instances=1, coalesce=True, misfire_grace_time=3 * 3600)
-    sched.add_job(community_job, CronTrigger(hour=settings.community_hour, minute=0), id="community",
+    if settings.scrape_enabled:
+        sched.add_job(scrape_then_detect, CronTrigger(hour=hours, minute=5), id="scrape",
+                      max_instances=1, coalesce=True, misfire_grace_time=3 * 3600)
+        community_fn, catch_up = community_job, scrape_after_community
+    else:
+        # manual prices: no Home Depot requests at all. Re-score on the same cadence so
+        # "days at this price" and new community reports still raise scores over time.
+        sched.add_job(detect_job, CronTrigger(hour=hours, minute=5), id="detect",
+                      max_instances=1, coalesce=True, misfire_grace_time=3 * 3600)
+        community_fn, catch_up = community_then_detect, community_then_detect
+    sched.add_job(community_fn, CronTrigger(hour=settings.community_hour, minute=0), id="community",
                   max_instances=1, coalesce=True, misfire_grace_time=12 * 3600)
-    # catch up at start-up: nothing to scrape until the community list has run once today
+    # catch up at start-up when the community list hasn't run yet today
     if not community.ran_today():
-        sched.add_job(scrape_after_community, id="catch-up", max_instances=1)
+        sched.add_job(catch_up, id="catch-up", max_instances=1)
 
     def _stop(*_):
         log.info("stopping")
@@ -62,6 +83,11 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _stop)
     signal.signal(signal.SIGINT, _stop)
 
-    send(f"HD Penny Tracker worker started. Scrape at hours {hours} ({settings.timezone}), community list at {settings.community_hour}:00.")
-    log.info("scheduler running: scrape hours=%s community=%s:00", hours, settings.community_hour)
+    if settings.scrape_enabled:
+        send(f"HD Penny Tracker worker started. Scrape at hours {hours} ({settings.timezone}), community list at {settings.community_hour}:00.")
+    else:
+        send(f"HD Penny Tracker prendido en modo manual: anota precios en el panel. "
+             f"Lista de la comunidad a las {settings.community_hour}:00, puntajes a las {hours} ({settings.timezone}).")
+    log.info("scheduler running: scrape=%s hours=%s community=%s:00",
+             "on" if settings.scrape_enabled else "off (manual prices)", hours, settings.community_hour)
     sched.start()

@@ -57,6 +57,8 @@ class Settings:
     delay_min: float = _env_float("REQUEST_DELAY_MIN", 2.0)
     delay_max: float = _env_float("REQUEST_DELAY_MAX", 4.0)
     headless: bool = _env("HEADLESS", "true").lower() != "false"
+    # false = Home Depot is blocking the scraper: no automatic scrapes, prices are entered by hand
+    scrape_enabled: bool = _env("SCRAPE_ENABLED", "true").lower() != "false"
     scrape_every_hours: int = _env_int("SCRAPE_EVERY_HOURS", 4)
     community_hour: int = _env_int("COMMUNITY_HOUR", 7)
     community_max: int = _env_int("COMMUNITY_MAX", 60)

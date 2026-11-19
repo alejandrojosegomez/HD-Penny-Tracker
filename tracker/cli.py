@@ -1,6 +1,8 @@
 """python -m tracker <command>
 
   add <internet_number> [--category c] [--note n]   add a product to the watchlist
+  price <internet#> <store> <price> [--was X] [--qty N]
+                                                     save a price you saw (manual mode)
   scrape [--limit N]                                 scrape watchlist x stores once
   detect [--no-send]                                 score history and create/send alerts
   community                                          refresh community penny lists
@@ -36,6 +38,10 @@ def main() -> None:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     a = sub.add_parser("add"); a.add_argument("internet_number"); a.add_argument("--category", default=""); a.add_argument("--note", default="")
+    pr = sub.add_parser("price"); pr.add_argument("internet_number"); pr.add_argument("store"); pr.add_argument("price", type=float)
+    pr.add_argument("--was", type=float, default=None, help="regular price (reuses the last one if omitted)")
+    pr.add_argument("--qty", type=int, default=None, help="units on the shelf (0 = none)")
+    pr.add_argument("--no-send", action="store_true")
     s = sub.add_parser("scrape"); s.add_argument("--limit", type=int, default=None)
     d = sub.add_parser("detect"); d.add_argument("--no-send", action="store_true")
     sub.add_parser("community"); sub.add_parser("run"); sub.add_parser("serve")
@@ -50,7 +56,19 @@ def main() -> None:
         added = append_watchlist(n, args.category, args.note, "manual")
         get_storage().upsert_product(n, category=args.category or None, source="manual")
         print("added" if added else "already on the watchlist")
+    elif args.cmd == "price":
+        from .manual import ManualPriceError, record_price
+        try:
+            r = record_price(args.internet_number, args.store, args.price, args.was, args.qty,
+                             send_alerts=not args.no_send)
+        except ManualPriceError as e:
+            sys.exit(str(e))
+        disc = f" ({r['discount_pct']:.0f}% off)" if r["discount_pct"] is not None else ""
+        print(f"{r['name'] or r['internet_number']} @ {r['store_name']} #{r['hd_store_id']}: "
+              f"${r['price']:.2f}{disc} -> score {r['score']}" + (f" | {'; '.join(r['reasons'])}" if r["reasons"] else ""))
     elif args.cmd == "scrape":
+        if not settings.scrape_enabled:
+            sys.exit("scraping is off (SCRAPE_ENABLED=false). Use `python -m tracker price ...` instead.")
         from .scraper import scrape_all
         print(scrape_all(limit=args.limit))
     elif args.cmd == "detect":

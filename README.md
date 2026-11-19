@@ -53,6 +53,16 @@ python -m tracker run                               # scheduler (worker)
 
 Or `docker compose up -d --build` for worker + dashboard together (one image, runs as a non-root user; `.env` and `data/` are mounted, never baked into the image). The dashboard is published on `127.0.0.1:8000` only; see the comment in `docker-compose.yml` to open it to your Wi-Fi.
 
+### Manual prices (current mode)
+
+Home Depot's bot protection currently refuses the scraper, so `SCRAPE_ENABLED=false` turns automatic scraping off and prices are entered by hand: the **✍️ Anotar un precio** form in the dashboard's *Vigilados* view, or
+
+```bash
+python -m tracker price 335104182 0260 0.01 --was 59.97 --qty 3   # internet #, store, price now
+```
+
+Each entry is scored right away and sends the Telegram alert at 70+. The original price is what the discount is computed from (it's reused from the last entry when left out), and `--qty` tells the score whether the shelf has stock. The worker keeps refreshing the community lists every morning and re-scores on the old scrape schedule.
+
 **Stores** live in `config/stores.yaml` (mine: `0260` West Melbourne, `6381` N Melbourne, `6336` Palm Bay, `0430` Viera). **Storage** is SQLite by default; set `DATABASE_MODE=supabase` to write through to Postgres (`supabase/schema.sql`).
 
 ## Stack

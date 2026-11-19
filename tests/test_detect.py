@@ -71,7 +71,8 @@ def test_alert_escapes_html():
 def test_telegram_token_fallback(monkeypatch):
     import importlib
     import tracker.settings as s
-    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    # empty, not deleted: a deleted var gets refilled from a local .env when settings reloads
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "")
     monkeypatch.setenv("TELEGRAM_TOKEN", "abc")
     importlib.reload(s)
     assert s.settings.telegram_token == "abc"

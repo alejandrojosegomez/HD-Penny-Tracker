@@ -126,10 +126,40 @@ class JobResult(BaseModel):
     status: Literal["started", "already_running"]
 
 
+class PriceIn(BaseModel):
+    internet_number: str = Field(examples=["335104182"])
+    store: str = Field(examples=["0260"], description="hd_store_id")
+    price: float = Field(gt=0, examples=[0.01])
+    original_price: Optional[float] = Field(None, gt=0, description="regular price; reuses the last known one when empty")
+    qty: Optional[int] = Field(None, ge=0, description="units on the shelf; empty = not checked")
+    name: Optional[str] = None
+
+
+class PriceOut(BaseModel):
+    internet_number: str
+    name: Optional[str] = None
+    hd_store_id: str
+    store_name: str
+    price: float
+    original_price: Optional[float] = None
+    discount_pct: Optional[float] = None
+    stock: Optional[int] = None
+    availability: Optional[str] = None
+    score: int
+    reasons: list[str]
+
+
+class ProductBrief(BaseModel):
+    internet_number: str
+    name: Optional[str] = None
+    last_original_price: Optional[float] = None
+
+
 class Health(BaseModel):
     status: Literal["ok"]
     version: str
     database_mode: str
+    scrape_enabled: bool
     products: int
     stores: int
     last_scrape: Optional[str] = None
@@ -203,7 +233,7 @@ def health():
     db = get_storage()
     runs = [r for r in db.last_runs(50) if r["job"] == "scrape" and r.get("finished_at")]
     return Health(status="ok", version=__version__, database_mode=settings.database_mode,
-                  products=len(db.products()), stores=len(db.stores()),
+                  scrape_enabled=settings.scrape_enabled, products=len(db.products()), stores=len(db.stores()),
                   last_scrape=runs[0]["finished_at"] if runs else None,
                   time=datetime.now(timezone.utc).isoformat(timespec="seconds"))
 
@@ -258,6 +288,25 @@ def api_remove(internet_number: str):
     return AddResult(internet_number=n, added=False)
 
 
+@app.get("/api/products", response_model=list[ProductBrief], tags=["items"])
+def api_products():
+    """Active products, for the price form's picker (includes items with no price yet)."""
+    from .manual import last_original_price
+    return [ProductBrief(internet_number=p["internet_number"], name=p.get("name"),
+                         last_original_price=last_original_price(p["id"]))
+            for p in get_storage().products()]
+
+
+@app.post("/api/prices", response_model=PriceOut, status_code=201, tags=["items"])
+def api_add_price(body: PriceIn):
+    """Save a price you saw in the store or in the Home Depot app, then re-score (may send an alert)."""
+    from .manual import ManualPriceError, record_price
+    try:
+        return record_price(body.internet_number, body.store, body.price, body.original_price, body.qty, body.name)
+    except ManualPriceError as e:
+        raise HTTPException(400, str(e))
+
+
 @app.get("/api/alerts", response_model=list[Alert], tags=["alerts"])
 def api_alerts(limit: int = Query(100, ge=1, le=1000), min_score: int = Query(0, ge=0, le=100)):
     out = []
@@ -276,6 +325,8 @@ def api_alerts(limit: int = Query(100, ge=1, le=1000), min_score: int = Query(0,
 @app.post("/api/jobs/{job}", response_model=JobResult, status_code=202, tags=["jobs"])
 def api_job(job: Literal["scrape", "detect", "community"], bg: BackgroundTasks):
     """Start a job in the background. `scrape` also runs `detect` when it finishes."""
+    if job == "scrape" and not settings.scrape_enabled:
+        raise HTTPException(409, "scraping is off (SCRAPE_ENABLED=false); enter prices with POST /api/prices")
     with _lock:
         if job in _running:
             return JobResult(job=job, status="already_running")
