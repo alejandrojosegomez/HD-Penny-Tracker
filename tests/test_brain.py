@@ -32,6 +32,18 @@ def test_snapshot_and_labels(tmp_path, monkeypatch):
     assert y == [1]                     # day-0 TX-only snapshot reached FL by day 5
 
 
+def test_unchanged_report_is_not_rewritten(tmp_path, monkeypatch):
+    con = _con(tmp_path, monkeypatch)
+    item = {"sku": "1", "reported_at": "2026-10-01", "states": "TX", "report_count": 3}
+    assert community.add_reports(con, "pennyrecon", [item]) == 1
+    con.execute("UPDATE community_reports SET last_collected = 'old'")
+    assert community.add_reports(con, "pennyrecon", [item]) == 0          # same data: untouched
+    assert con.execute("SELECT last_collected FROM community_reports").fetchone()[0] == "old"
+    assert community.add_reports(con, "pennyrecon", [{**item, "states": "TX,FL"}]) == 1
+    row = con.execute("SELECT states, last_collected FROM community_reports").fetchone()
+    assert row[0] == "TX,FL" and row[1] != "old"
+
+
 def test_trains_neural_net_on_synthetic_history(tmp_path, monkeypatch):
     con = _con(tmp_path, monkeypatch)
     random.seed(1)

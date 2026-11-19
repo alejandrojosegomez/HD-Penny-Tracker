@@ -178,7 +178,12 @@ PARSERS = {"pennyrecon": parse_pennyrecon, "paydirt": parse_paydirt, "ppm": pars
 # ------------------------------------------------------------------ store ---
 def add_reports(con: sqlite3.Connection, source: str, items: list[dict],
                 source_url: str | None = None) -> int:
-    """Upsert reports; returns rows inserted or updated."""
+    """Upsert reports; returns rows inserted or actually changed.
+
+    An existing row is only touched when the source changed its data, so last_collected
+    means "last run that changed this row". Before, every run rewrote last_collected on
+    all ~600 rows and the daily commit showed hundreds of fake changes.
+    """
     now = datetime.now().isoformat(timespec="seconds")
     new = 0
     for it in items:
@@ -192,7 +197,11 @@ def add_reports(con: sqlite3.Connection, source: str, items: list[dict],
                  states = COALESCE(excluded.states, states),
                  internet_number = COALESCE(excluded.internet_number, internet_number),
                  receipt_confirmed = MAX(receipt_confirmed, excluded.receipt_confirmed),
-                 last_collected = excluded.last_collected""",
+                 last_collected = excluded.last_collected
+               WHERE COALESCE(excluded.report_count, report_count) IS NOT report_count
+                  OR COALESCE(excluded.states, states) IS NOT states
+                  OR COALESCE(excluded.internet_number, internet_number) IS NOT internet_number
+                  OR MAX(receipt_confirmed, excluded.receipt_confirmed) IS NOT receipt_confirmed""",
             (it["sku"], it.get("internet_number"), it.get("upc"), it.get("name"),
              it.get("retail"), source, source_url, it["reported_at"], it.get("report_count"),
              it.get("states"), it.get("receipt_confirmed", 0), now, now),
