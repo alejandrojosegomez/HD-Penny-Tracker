@@ -25,6 +25,9 @@ def _logging() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
         handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler(DATA_DIR / "tracker.log")],
     )
+    # httpx logs every request URL at INFO, and Telegram's URL contains the bot token
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 
 def main() -> None:
