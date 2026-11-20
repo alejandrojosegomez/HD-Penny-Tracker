@@ -1,19 +1,19 @@
-"""Walks the watchlist × stores and appends one price_history row per pair."""
+"""Walks the watchlist × stores and appends one price_history row per pair.
+
+Prices come from the provider chosen with PRICE_PROVIDER (see tracker/providers/).
+"""
 from __future__ import annotations
 
 import logging
-import time
 from contextlib import contextmanager
 
-from .hd_client import Blocked, HDClient
 from .notify import send
+from .providers import Status, get_provider
+from .providers.save import save_observation
 from .settings import read_watchlist, settings
 from .storage import get_storage
 
 log = logging.getLogger("tracker.scraper")
-
-MAX_BLOCKS = 3          # consecutive blocks before we give up this run
-BACKOFF_SECONDS = 300   # wait after a block before trying again
 
 
 def sync_watchlist_to_db() -> int:
@@ -51,15 +51,15 @@ def _scrape_lock():
             fcntl.flock(f, fcntl.LOCK_UN)
 
 
-def scrape_all(limit: int | None = None) -> dict:
+def scrape_all(limit: int | None = None, provider=None) -> dict:
     with _scrape_lock() as got:
         if not got:
             log.warning("another scrape is already running; skipping this one")
             return {"ok": 0, "fail": 0, "blocked": 0, "stopped": True, "skipped": "already running"}
-        return _scrape_all(limit)
+        return _scrape_all(limit, provider)
 
 
-def _scrape_all(limit: int | None = None) -> dict:
+def _scrape_all(limit: int | None = None, provider=None) -> dict:
     db = get_storage()
     run_id = db.start_run("scrape")
     sync_watchlist_to_db()
@@ -67,48 +67,41 @@ def _scrape_all(limit: int | None = None) -> dict:
     if limit:
         products = products[:limit]
     stores = db.stores()
-    log.info("scraping %d products x %d stores", len(products), len(stores))
+    provider = provider or get_provider()
+    log.info("scraping %d products x %d stores with provider %s", len(products), len(stores), provider.name)
 
-    client = HDClient()
-    ok = fail = blocked = 0
+    counts = {s.value: 0 for s in Status}
     for p in products:
         for s in stores:
-            try:
-                data = client.fetch(p["internet_number"], s["hd_store_id"], s.get("zip") or "")
-            except Blocked as e:
-                blocked += 1
-                log.warning("blocked (%s) on %s @ %s", e, p["internet_number"], s["hd_store_id"])
-                if client.blocks_in_a_row >= MAX_BLOCKS:
-                    msg = (f"HD Penny Tracker: blocked {MAX_BLOCKS} times in a row, stopping this run. "
-                           f"Done {ok} ok / {fail} failed. Will retry next schedule.")
-                    log.error(msg)
-                    send(msg)
-                    db.finish_run(run_id, False, msg)
-                    return {"ok": ok, "fail": fail, "blocked": blocked, "stopped": True}
-                time.sleep(BACKOFF_SECONDS)
-                client.refresh_session()
-                continue
-            except Exception as e:
-                fail += 1
-                log.exception("fetch failed for %s @ %s: %s", p["internet_number"], s["hd_store_id"], e)
-                client._sleep()
-                continue
+            res = provider.fetch(p["internet_number"], s)
+            counts[res.status.value] += 1
+            if res.status.stops_run:
+                # a refusal ends the run: no retries, no extra requests until the next schedule
+                msg = (f"HD Penny Tracker: {provider.name} answered {res.status.value} ({res.detail}) "
+                       f"on {p['internet_number']} @ {s['hd_store_id']}. Stopping this run; "
+                       f"{counts['ok']} saved. Manual prices still work.")
+                log.error(msg)
+                send(msg)
+                db.finish_run(run_id, False, msg)
+                return _summary(counts, stopped=True, provider=provider.name)
+            if res.status is Status.OK:
+                save_observation(res.observation, db)
+            else:
+                log.warning("%s @ %s: %s %s", p["internet_number"], s["hd_store_id"],
+                            res.status.value, res.detail)
+            provider.pause()
 
-            db.upsert_product(
-                p["internet_number"],
-                sku=data.get("sku"), upc=data.get("upc"), model=data.get("model"), brand=data.get("brand"),
-                name=data.get("name"), description=data.get("description"),
-                image_url=data.get("image_url"), product_url=data.get("product_url"),
-            )
-            db.add_price(p["id"], s["id"], data.get("price"), data.get("original_price"),
-                         data.get("stock"), data.get("availability"),
-                         raw={"source": data.get("raw_source"), "discontinued": data.get("discontinued")})
-            ok += 1
-            log.info("%s @ %s: $%s (orig $%s) %s qty=%s", p["internet_number"], s["hd_store_id"],
-                     data.get("price"), data.get("original_price"), data.get("availability"), data.get("stock"))
-            client._sleep()
-
-    summary = f"scrape done: {ok} ok, {fail} failed, {blocked} blocked"
+    out = _summary(counts, stopped=False, provider=provider.name)
+    summary = (f"scrape done ({provider.name}): {out['ok']} ok, {out['fail']} failed, "
+               f"{out['unavailable']} unavailable")
     db.finish_run(run_id, True, summary)
     log.info(summary)
-    return {"ok": ok, "fail": fail, "blocked": blocked, "stopped": False}
+    return out
+
+
+def _summary(counts: dict, stopped: bool, provider: str) -> dict:
+    return {"ok": counts["ok"],
+            "fail": counts["error"] + counts["malformed"],
+            "blocked": counts["access_denied"] + counts["rate_limited"],
+            "unavailable": counts["unavailable"],
+            "stopped": stopped, "provider": provider}

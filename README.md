@@ -63,6 +63,18 @@ python -m tracker price 335104182 0260 0.01 --was 59.97 --qty 3   # internet #, 
 
 Each entry is scored right away and sends the Telegram alert at 70+. The original price is what the discount is computed from (it's reused from the last entry when left out), and `--qty` tells the score whether the shelf has stock. The worker keeps refreshing the community lists every morning and re-scores on the old scrape schedule.
 
+### Price providers
+
+When scraping is on, prices come from the provider named in `PRICE_PROVIDER` (`tracker/providers/`). Every provider returns the same normalized observation (internet #, store, price, original price, stock, availability, source, time), and manual entry saves through the same path.
+
+| `PRICE_PROVIDER` | What it is |
+|---|---|
+| `hd_direct` (default) | The original client in `tracker/hd_client.py`. Home Depot's Akamai Bot Manager blocks it; kept only so existing setups behave the same. |
+| `licensed_api` | Integration point for a licensed price/inventory data API. Not wired to a vendor yet: fill in `_request` / `_normalize` once a vendor's terms are confirmed to allow this use. Key goes in `PRICE_API_KEY`. |
+| `sample` | Reads `tests/fixtures/sample_observations.json` (or `SAMPLE_OBSERVATIONS`). No network; for development and tests. |
+
+A refusal (`access_denied` or `rate_limited`) ends the run immediately with a Telegram notice: no retries, no extra requests until the next schedule. The project does not try to get around Home Depot's bot protection (no CAPTCHA solving, stealth browsing, fingerprint spoofing or proxy rotation). Details in `tracker/providers/README.md`.
+
 **Stores** live in `config/stores.yaml` (mine: `0260` West Melbourne, `6381` N Melbourne, `6336` Palm Bay, `0430` Viera). **Storage** is SQLite by default; set `DATABASE_MODE=supabase` to write through to Postgres (`supabase/schema.sql`).
 
 ## Stack
