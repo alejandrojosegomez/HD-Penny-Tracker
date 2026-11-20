@@ -62,3 +62,17 @@ def test_trains_neural_net_on_synthetic_history(tmp_path, monkeypatch):
     rep = learn.train(con)
     assert rep["trained"] and rep["cv_auc"] > 0.8
     assert learn.MODEL_PATH.exists()
+
+
+def test_known_sku_from_new_source_is_not_new(tmp_path, monkeypatch):
+    from brain import dashboard
+    con = _con(tmp_path, monkeypatch)
+    community.add_reports(con, "pennyrecon", [{"sku": "1", "reported_at": "2026-10-01", "states": "TX"}])
+    con.execute("UPDATE community_reports SET first_collected = '2026-10-01T07:00:00'")
+    community.add_reports(con, "paydirt", [{"sku": "1", "reported_at": "2026-10-02", "states": "GA"}])
+    community.add_reports(con, "paydirt", [{"sku": "2", "reported_at": "2026-10-02", "states": "GA"}])
+    con.execute("UPDATE community_reports SET first_collected = '2026-10-02T07:00:00' "
+                "WHERE source = 'paydirt'")
+    con.executescript("INSERT INTO snapshot_runs (snap_date, items) VALUES ('2026-10-02', 2);")
+    day = dashboard.history(con)[-1]
+    assert (day["total"], day["new"]) == (2, 1)    # sku 1 was already known; only sku 2 is new

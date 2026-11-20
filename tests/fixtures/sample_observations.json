@@ -1,0 +1,9 @@
+[
+  {"internet_number": "1006423739", "hd_store_id": "0260", "price": 0.06, "original_price": 129.0,
+   "stock": 2, "availability": "limited", "name": "Hazel Heights 24 in. 3-Light Vanity Light (sample)"},
+  {"internet_number": "1006423739", "hd_store_id": "6381", "price": 129.0, "original_price": 129.0,
+   "stock": 5, "availability": "in_stock"},
+  {"internet_number": "1004871058", "hd_store_id": "0260", "price": 49.03, "original_price": 99.97,
+   "stock": 1, "availability": "limited"},
+  {"internet_number": "1004871058", "hd_store_id": "6381", "status": "rate_limited"}
+]

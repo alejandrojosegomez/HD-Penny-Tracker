@@ -65,8 +65,8 @@ def caption(con, counts: dict, rep: dict, limit: int = 1024) -> str:
     fl = [r for r in hot if r["states"] and "FL" in r["states"].split(",")]
     spread = rep.get("spreading") or []
     total = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports").fetchone()[0]
-    new = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports "
-                      "WHERE date(first_collected) = date('now', 'localtime')").fetchone()[0]
+    new = con.execute("SELECT COUNT(*) FROM (SELECT sku, MIN(date(first_collected)) d FROM community_reports GROUP BY sku) "
+                      "WHERE d = date('now', 'localtime')").fetchone()[0]
     days = rep.get("snapshot_days", 0)
     target = brain.HORIZON_DAYS + 1
 

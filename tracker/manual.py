@@ -8,6 +8,8 @@ from __future__ import annotations
 from typing import Optional
 
 from .detect import score_history
+from .providers.base import Observation
+from .providers.save import save_observation
 from .storage import get_storage
 
 
@@ -67,8 +69,9 @@ def record_price(internet_number: str, store: str, price: float, original_price:
         pid = db.upsert_product(n, name=(name or "").strip() or None, source="manual", active=1)
 
     availability = None if qty is None else ("in_stock" if qty > 0 else "out_of_stock")
-    db.add_price(pid, st["id"], round(float(price), 2), round(float(original_price), 2), qty,
-                 availability or "unknown", raw={"source": "manual"})
+    save_observation(Observation(internet_number=n, hd_store_id=st["hd_store_id"], price=price,
+                                 original_price=original_price, stock=qty,
+                                 availability=availability or "unknown", source="manual"), db)
 
     from .detect import run
     run(send_alerts=send_alerts)
