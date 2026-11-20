@@ -76,8 +76,8 @@ def evaluate(con) -> dict:
 def weekly(con, today: str | None = None) -> dict:
     today = today or con.execute("SELECT MAX(snap_date) FROM item_snapshots").fetchone()[0]
     week_ago = (date.fromisoformat(today) - timedelta(days=MOMENTUM_DAYS)).isoformat()
-    new = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports "
-                      "WHERE date(first_collected) > ?", (week_ago,)).fetchone()[0]
+    new = con.execute("SELECT COUNT(*) FROM (SELECT sku, MIN(date(first_collected)) d FROM community_reports GROUP BY sku) "
+                      "WHERE d > ?", (week_ago,)).fetchone()[0]
     fl_now = con.execute("SELECT COUNT(*) FROM item_snapshots WHERE snap_date = ? AND has_fl = 1",
                          (today,)).fetchone()[0]
     fl_then = con.execute(

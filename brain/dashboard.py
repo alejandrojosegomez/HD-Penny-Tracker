@@ -26,8 +26,8 @@ def history(con) -> list[dict]:
     for d in days:
         total = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports "
                             "WHERE date(first_collected) <= ?", (d,)).fetchone()[0]
-        new = con.execute("SELECT COUNT(DISTINCT sku) FROM community_reports "
-                          "WHERE date(first_collected) = ?", (d,)).fetchone()[0]
+        new = con.execute("SELECT COUNT(*) FROM (SELECT sku, MIN(date(first_collected)) d FROM community_reports GROUP BY sku) "
+                          "WHERE d = ?", (d,)).fetchone()[0]
         active = con.execute("SELECT items FROM snapshot_runs WHERE snap_date = ?", (d,)).fetchone()[0]
         fl = con.execute("SELECT COUNT(*) FROM item_snapshots WHERE snap_date = ? AND has_fl = 1",
                          (d,)).fetchone()[0]
