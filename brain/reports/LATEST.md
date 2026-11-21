@@ -1,12 +1,12 @@
-# 🧠 Reporte del cerebro — 2026-11-20
+# 🧠 Reporte del cerebro — 2026-11-21
 
 [← Panel](../README.md) · [Todos los reportes](README.md)
 
 | Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Extendiéndose |
 |:-:|:-:|:-:|:-:|:-:|
-| **428** | **9** | **237** | **31** | **25** |
+| **431** | **3** | **237** | **33** | **25** |
 
-**Red neuronal:** 🟡 Juntando datos · día **6 de 15**
+**Red neuronal:** 🟡 Juntando datos · día **7 de 15**
 
 **🎯 Aciertos: se miden desde el 2026-12-01**
 
@@ -16,10 +16,10 @@
 |--:|---|---|:-:|--:|--:|
 | 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | **+10** | 12 | 16 |
 | 2 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+7** | 13 | 23 |
-| 3 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+2** | 7 | 15 |
-| 4 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | **+2** | 4 | 5 |
-| 5 | [DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating S…](https://www.homedepot.com/s/1013121020) | `1013121020` | **+2** | 4 | 5 |
-| 6 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+2** | 3 | 3 |
+| 3 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+3** | 4 | 4 |
+| 4 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+2** | 7 | 15 |
+| 5 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | **+2** | 4 | 5 |
+| 6 | [DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating S…](https://www.homedepot.com/s/1013121020) | `1013121020` | **+2** | 4 | 5 |
 | 7 | [Anvil 5-Piece Hand Tool Kit](https://www.homedepot.com/s/1015344244) | `1015344244` | **+2** | 3 | 3 |
 | 8 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+2** | 2 | 3 |
 | 9 | [36 in. Floating Shelf](https://www.homedepot.com/s/735996) | `735996` | **+1** | 2 | 3 |
@@ -29,13 +29,13 @@
 
 | # | Producto | SKU | Precio | Reportes | Fuentes |
 |--:|---|---|--:|--:|:-:|
-| 1 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 250 | 2 |
+| 1 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 252 | 2 |
 | 2 | [Husky 800 Lumen LED Rechargeable Detachable Tripod Work Ligh…](https://www.homedepot.com/s/1012388248) | `1012388248` | $20 | 121 | 2 |
 | 3 | [Wireless TV Headphones in Black](https://www.homedepot.com/s/1003565875) | `1003565875` | $36 | 62 | 2 |
 | 4 | [Milwaukee 20-32 AWG Low Voltage Wire Stripper/Cutter with Di…](https://www.homedepot.com/s/1010362919) | `1010362919` | $22 | 29 | 2 |
 | 5 | [Flexon 5/8 in. dia. x 100 ft. Contractor Grade Garden Hose](https://www.homedepot.com/s/1015053805) | `1015053805` | $25 | 21 | 2 |
-| 6 | [DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray Poly…](https://www.homedepot.com/s/1015277793) | `1015277793` | $20 | 16 | 2 |
-| 7 | [Maxfit Modular 3/8 in. Drive Right Angle Attachment](https://www.homedepot.com/s/1008778891) | `1008778891` | $25 | 11 | 2 |
+| 6 | [Maxfit Modular 3/8 in. Drive Right Angle Attachment](https://www.homedepot.com/s/1008778891) | `1008778891` | $25 | 17 | 2 |
+| 7 | [DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray Poly…](https://www.homedepot.com/s/1015277793) | `1015277793` | $20 | 16 | 2 |
 | 8 | [Smart Lighting White Motion Activated Outdoor Integrated LED…](https://www.homedepot.com/s/1004296682) | `1004296682` | $40 | 10 | 2 |
 | 9 | [Sedgewood 24.5 in. W x 18.75 in. D x 34.375 in. H Single Sin…](https://www.homedepot.com/s/1003619907) | `1003619907` | $359 | 9 | 2 |
 | 10 | [Ring Floodlight Cam Wired Pro - Smart Security Video Camera …](https://www.homedepot.com/s/1006104733) | `1006104733` | $230 | 8 | 2 |
@@ -48,7 +48,7 @@
 | 2 | [DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating S…](https://www.homedepot.com/s/1013121020) | `1013121020` | $20 | 5 | 2 | CO, GA, LA, VA |
 | 3 | [Anvil 5-Piece Hand Tool Kit](https://www.homedepot.com/s/1015344244) | `1015344244` | $10 | 3 | 2 | GA, LA, NY |
 | 4 | [CyberPower 1500VA 10-Outlet UPS RJ45 COAX USB Charging](https://www.homedepot.com/s/1008718547) | `1008718547` | $202 | 2 | 2 | VA, WA |
-| 5 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 250 | 2 | AL, AZ, CA, CO, CT, **FL** +27 |
+| 5 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 252 | 2 | AL, AZ, CA, CO, CT, **FL** +27 |
 | 6 | [Husky 800 Lumen LED Rechargeable Detachable Tripod Work Ligh…](https://www.homedepot.com/s/1012388248) | `1012388248` | $20 | 121 | 2 | AL, CA, CO, CT, **FL**, GA +22 |
 | 7 | [Wireless TV Headphones in Black](https://www.homedepot.com/s/1003565875) | `1003565875` | $36 | 62 | 2 | AR, CA, **FL**, IL, KY, MA +14 |
 | 8 | [Milwaukee 20-32 AWG Low Voltage Wire Stripper/Cutter with Di…](https://www.homedepot.com/s/1010362919) | `1010362919` | $22 | 29 | 2 | CA, CT, **FL**, IL, IN, LA +9 |
@@ -59,8 +59,8 @@
 
 | Fuente | Estado | Productos |
 |---|:-:|--:|
-| PennyRecon | ✅ | 301 |
-| Paydirt | ✅ | 271 |
+| PennyRecon | ✅ | 302 |
+| Paydirt | ✅ | 270 |
 | Penny Pinchin' Mom | ✅ | 67 |
 
 <sub>Generado automáticamente por GitHub Actions. Los enlaces abren la búsqueda del SKU en homedepot.com.</sub>

@@ -1,9 +1,10 @@
 sku,name,internet_number,retail,first_reported,last_reported,sources,reports,states,in_florida,states_gained_7d,reports_gained_7d,homedepot_link
-1008778891,Maxfit Modular 3/8 in. Drive Right Angle Attachment,322889139,24.97,2026-11-09,2026-11-19,"pennyrecon,paydirt",11,8,1,7,10,https://www.homedepot.com/s/1008778891
-215583,12 inch Rough In Two-Piece 1.1 GPF/1.6 GPF Dual Flush Elongated Toilet in White Seat Included,331755742,99.0,2026-11-14,2026-11-20,pennyrecon,127,30,1,5,39,https://www.homedepot.com/s/215583
+1008778891,Maxfit Modular 3/8 in. Drive Right Angle Attachment,322889139,24.97,2026-11-09,2026-11-20,"pennyrecon,paydirt",17,9,1,8,16,https://www.homedepot.com/s/1008778891
+215583,12 inch Rough In Two-Piece 1.1 GPF/1.6 GPF Dual Flush Elongated Toilet in White Seat Included,331755742,99.0,2026-11-14,2026-11-21,pennyrecon,132,31,1,6,44,https://www.homedepot.com/s/215583
 1003565875,Wireless TV Headphones in Black,306315853,35.98,2026-10-24,2026-11-18,"pennyrecon,paydirt",62,20,1,5,17,https://www.homedepot.com/s/1003565875
+155180,"8 ft. 6-Outlet Surge Protector with 45 Degree Flat Angle Plug, Black",304521507,14.99,2026-11-13,2026-11-21,pennyrecon,21,12,1,5,9,https://www.homedepot.com/s/155180
+1014175343,Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Waterproof Vinyl Plank Flooring (21.15 sq. ft. /Case),336106074,63.24,2026-11-09,2026-11-21,"pennyrecon,paydirt",7,6,1,5,6,https://www.homedepot.com/s/1014175343
 168674,800 lb. Capacity D-Handle Hand Truck,100030159,79.0,2026-11-11,2026-11-19,pennyrecon,70,21,1,4,26,https://www.homedepot.com/s/168674
-155180,"8 ft. 6-Outlet Surge Protector with 45 Degree Flat Angle Plug, Black",304521507,14.99,2026-11-13,2026-11-20,pennyrecon,20,11,1,4,8,https://www.homedepot.com/s/155180
 1006423742,Havelock 22.7 in. 1-Light Chrome Integrated LED Bathroom Vanity Light Bar with Clear Seedy Glass,316704753,99.97,2026-11-09,2026-11-17,"pennyrecon,paydirt",7,5,1,4,6,https://www.homedepot.com/s/1006423742
 1012388248,Husky 800 Lumen LED Rechargeable Detachable Tripod Work Light,335104182,19.88,2026-10-26,2026-11-18,"pennyrecon,paydirt",121,28,1,3,16,https://www.homedepot.com/s/1012388248
 527997,Instant-Read Grill Thermometer,300592283,16.99,2026-11-12,2026-11-18,pennyrecon,14,10,1,3,5,https://www.homedepot.com/s/527997
@@ -12,8 +13,7 @@ sku,name,internet_number,retail,first_reported,last_reported,sources,reports,sta
 1004296682,Smart Lighting White Motion Activated Outdoor Integrated LED Spotlight Battery,308537853,39.99,2026-11-02,2026-11-16,"pennyrecon,paydirt",10,9,1,2,2,https://www.homedepot.com/s/1004296682
 1011585025,"Commercial Electric 6 in. LED InfinitiEdge Recessed Retrofit Light Trim, Adjustable CCT",329779214,16.97,2026-11-09,2026-11-18,"pennyrecon,paydirt",5,4,1,2,3,https://www.homedepot.com/s/1011585025
 1015399906,Milwaukee Black Cut Level 1 Nitrile Dipped Gloves-XL,341481250,24.88,2026-11-09,2026-11-16,"pennyrecon,paydirt",4,4,1,2,2,https://www.homedepot.com/s/1015399906
-1014175343,Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Waterproof Vinyl Plank Flooring (21.15 sq. ft. /Case),336106074,63.24,2026-11-09,2026-11-16,"pennyrecon,paydirt",3,3,1,2,2,https://www.homedepot.com/s/1014175343
-1009074829,RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter Stick Vacuum Cleaner (Tool Only),323830662,199.0,2026-11-09,2026-11-20,"pennyrecon,paydirt",250,33,1,1,12,https://www.homedepot.com/s/1009074829
+1009074829,RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter Stick Vacuum Cleaner (Tool Only),323830662,199.0,2026-11-09,2026-11-20,"pennyrecon,paydirt",252,33,1,1,14,https://www.homedepot.com/s/1009074829
 1010362919,Milwaukee 20-32 AWG Low Voltage Wire Stripper/Cutter with Dipped Grip,326839587,21.97,2026-11-02,2026-11-18,"pennyrecon,paydirt",29,15,1,1,11,https://www.homedepot.com/s/1010362919
 1003619907,Sedgewood 24.5 in. W x 18.75 in. D x 34.375 in. H Single Sink Bath Vanity in White with Arctic Solid Surface Top,306307925,359.0,2026-11-09,2026-11-17,"pennyrecon,paydirt",9,7,1,1,2,https://www.homedepot.com/s/1003619907
 1007984718,Milwaukee 18 in. Red 4-Way Stretch Cut 3 Resistant Protective Arm Sleeves,320591859,16.47,2026-11-02,2026-11-17,"pennyrecon,paydirt",8,6,1,1,2,https://www.homedepot.com/s/1007984718
@@ -25,17 +25,19 @@ sku,name,internet_number,retail,first_reported,last_reported,sources,reports,sta
 1010213069,"RIDGID 190 Amp, 120-Volt/240-Volt Electric, Multi-Process Welder",326649891,1150.16,2026-11-02,2026-11-10,"pennyrecon,paydirt",6,5,1,0,0,https://www.homedepot.com/s/1010213069
 1008056500,Bannister 37 in. W x 19 in. D x 35 in. H Single Sink Bath Vanity in Pearl Gray with White Cultured Marble Top,321185187,429.0,2026-11-09,2026-11-09,pennyrecon,3,3,1,0,0,https://www.homedepot.com/s/1008056500
 1010984022,1/2 in. x 12 in. SHOCKWAVE Impact Duty Carbide Multi-Material Drill Bit,328602870,20.47,2026-11-10,2026-11-10,pennyrecon,3,3,1,0,0,https://www.homedepot.com/s/1010984022
+1004153623,TRINITY Black Anthracite 5-Tier Steel Wire Shelving Unit (48 in. W x 72 in. H x 18 in. D),308561422,159.0,2026-11-16,2026-11-20,"pennyrecon,paydirt",2,2,1,0,0,https://www.homedepot.com/s/1004153623
 1011853170,Home Decorators Collection Craye 30 in. Freestanding Bath Vanity Cabinet without Top in Matte Black,330506864,399.0,2026-11-02,2026-11-08,"pennyrecon,paydirt",2,2,1,0,0,https://www.homedepot.com/s/1011853170
 1013045587,Home Decorators Collection Brookhaven Heights Hickory 10 mm T x 7.6 in. W Waterproof Laminate Flooring (21.06 sq. ft./ca,333011374,37.69,2026-11-02,2026-11-08,"pennyrecon,paydirt",2,2,1,0,0,https://www.homedepot.com/s/1013045587
 1004869199,Elmbrook 60 in. x 30.25 in. Soaking Bathtub with Left-Hand Drain in White,311699619,439.0,2026-11-18,2026-11-18,pennyrecon,1,1,1,0,0,https://www.homedepot.com/s/1004869199
 1006544256,Crystal Bianco 32 in. x 32 in. Polished Porcelain Stone Look Floor and Wall Tile (21.33 sq. ft./Case),317540515,63.76,2026-11-09,2026-11-09,pennyrecon,1,1,1,0,0,https://www.homedepot.com/s/1006544256
 1007607449,10 oz. All Purpose Gloss White Spray Paint,320161274,2.88,2026-11-16,2026-11-16,pennyrecon,1,1,1,0,0,https://www.homedepot.com/s/1007607449
+766881,4 oz. in A Bottle Synthetic Fuel Additive,202580655,7.97,2026-11-20,2026-11-20,pennyrecon,1,1,1,0,0,https://www.homedepot.com/s/766881
 1004871058,Home Decorators Collection Alberson 5 in. Brushed Nickel 2-Light LED Sconce,311728493,99.97,2026-11-09,2026-11-17,"pennyrecon,paydirt",16,12,0,10,14,https://www.homedepot.com/s/1004871058
 1006423739,Home Decorators Collection Hazel Heights 24 in. 3-Light Black Rustic Farmhouse Bathroom Vanity Light,316704775,69.97,2026-11-09,2026-11-20,"pennyrecon,paydirt",23,13,0,7,15,https://www.homedepot.com/s/1006423739
+1001514599,Home Decorators Collection Alberson Collection 4-Light Brushed Nickel LED Vanity Light with Frosted Acrylic Shade,206303836,289.0,2026-11-15,2026-11-20,"pennyrecon,paydirt",4,4,0,3,3,https://www.homedepot.com/s/1001514599
 1007473601,RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with 4.0 Ah HIGH PERFORMANCE Battery and Charger,339349602,313.0,2026-10-26,2026-11-19,"pennyrecon,paydirt",15,7,0,2,3,https://www.homedepot.com/s/1007473601
 1004372760,RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw with Stand,309415135,549.0,2026-11-09,2026-11-19,"pennyrecon,paydirt",5,4,0,2,3,https://www.homedepot.com/s/1004372760
 1013121020,DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating Saw Blade for Thick Metal Cutting (2-Pack),333293856,19.88,2026-11-09,2026-11-17,"pennyrecon,paydirt",5,4,0,2,3,https://www.homedepot.com/s/1013121020
-1001514599,Home Decorators Collection Alberson Collection 4-Light Brushed Nickel LED Vanity Light with Frosted Acrylic Shade,206303836,289.0,2026-11-15,2026-11-19,"pennyrecon,paydirt",3,3,0,2,2,https://www.homedepot.com/s/1001514599
 1007608689,Milwaukee PACKOUT M18 Battery Rack,320089596,24.97,2026-11-16,2026-11-17,"paydirt,pennyrecon",3,2,0,2,2,https://www.homedepot.com/s/1007608689
 1015344244,Anvil 5-Piece Hand Tool Kit,341074169,9.88,2026-11-16,2026-11-18,"pennyrecon,paydirt",3,3,0,2,2,https://www.homedepot.com/s/1015344244
 1003619897,Sedgewood 30.5 in. W x 18.75 in. D x 34.375 in. H Single Sink Bath Vanity in White with Arctic Solid Surface Top,306307921,459.0,2026-11-09,2026-11-16,"pennyrecon,paydirt",3,4,0,1,0,https://www.homedepot.com/s/1003619897
@@ -63,7 +65,6 @@ sku,name,internet_number,retail,first_reported,last_reported,sources,reports,sta
 1001537757,Nexgrill Grill Tool Set with Stainless Steel Handles (8 Piece),206409408,24.98,2026-11-02,2026-11-16,"pennyrecon,paydirt",5,3,0,0,0,https://www.homedepot.com/s/1001537757
 1000051004,WBSK Workbench and Shelving Hardware Kit,205177374,33.98,2026-11-02,2026-11-08,"pennyrecon,paydirt",4,4,0,0,0,https://www.homedepot.com/s/1000051004
 1003185124,MOEN Genta Single Handle Single Hole Bathroom Faucet in Brushed Nickel,301980213,107.44,2026-11-09,2026-11-16,"pennyrecon,paydirt",4,2,0,0,0,https://www.homedepot.com/s/1003185124
-1003222344,WeatherTech 24 in. x 39 in. Grey Indoor Mat,305421211,43.95,2026-11-02,2026-11-06,"pennyrecon,paydirt",4,2,0,0,0,https://www.homedepot.com/s/1003222344
 1010984010,3/8 in. x 12 in. SHOCKWAVE Impact Duty Carbide Multi-Material Drill Bit,328602869,18.47,2026-11-09,2026-11-09,pennyrecon,4,4,0,0,0,https://www.homedepot.com/s/1010984010
 594924,32 in. x 80 in. Universal Copper Surface Mount Outswing Steel Security Door with Expanded Metal Screen,202809390,259.0,2026-11-09,2026-11-09,pennyrecon,4,4,0,0,0,https://www.homedepot.com/s/594924
 upc:732291231619,Glacier Bay 12 inch Rough In Two-Piece 1.1 GPF/1.6 GPF Dual Flush Elongated Toilet in White Seat Included,331755742,,2026-10-26,2026-11-16,paydirt,4,0,0,0,1,https://www.homedepot.com/s/upc:732291231619
@@ -174,8 +175,8 @@ upc:875638001312,Slide Dimming LED Night Light Soft White 2-Pack,,,2026-09-28,20
 1003576793,Waterproof Roof Top Cargo Bag,203433537,84.46,2026-11-08,2026-11-08,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1003576793
 1003898766,Toledo Grey 36 in. x 48 in. Commercial Floor Mat,306905520,32.98,2026-11-11,2026-11-11,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1003898766
 1004159514,"Power Flush 12 in. Rough In 2-Piece 1.28 GPF Single Flush Elongated Toilet in White, Seat Included",,,2026-11-09,2026-11-09,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1004159514
-1004330413,Commercial 8 ft. (Two 4ft.) 440 Watt Equivalent Integrated LED White Multi-Volt Strip Light Fixture 11000 Lumens 4000K,314010411,98.97,2026-11-06,2026-11-06,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1004330413
 1005598624,Tupelo 24 in. W x 19 in. D x 34 in. H Single Sink Bath Vanity in Midnight Blue with White Engineered Stone Top,313817439,299.0,2026-11-10,2026-11-10,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1005598624
+1005617865,15 Amp White Duplex Tamper-Resistant Outlets with 6 Amp USB Dual Type-C Power Delivery In-Wall Chargers,314158292,39.99,2026-11-21,2026-11-21,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1005617865
 1005649564,2 in. Diamond Max Hole Saw,313505342,45.47,2026-11-11,2026-11-11,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1005649564
 1007922501,Metro Gold 12.09 in. x 12.21 in. Textured Stone;Metal Mesh-Mounted Mosaic Tile (1.03 sq. ft./Each),320957959,17.98,2026-11-09,2026-11-09,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1007922501
 1008120626,Safeguard Plush Grey 36 in. x 60 in. Commercial Mat,321427914,38.98,2026-11-11,2026-11-11,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1008120626
@@ -187,7 +188,6 @@ upc:875638001312,Slide Dimming LED Night Light Soft White 2-Pack,,,2026-09-28,20
 1010983994,1/4 in. x 12 in. SHOCKWAVE Impact Duty Carbide Multi-Material Drill Bit,328602867,16.47,2026-11-09,2026-11-09,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1010983994
 1012138078,Honeycomb Black 35.5 in. x 46.75 in. Recycled Rubber Non-Slip Indoor Outdoor Commercial Floor Mat,330976713,18.98,2026-11-11,2026-11-11,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1012138078
 1012671126,"Boars Night Out Southern Thunder Rub, 11.2 Oz.",331978225,17.97,2026-11-10,2026-11-10,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1012671126
-1014292870,BOLT White Type 2 Class C Full Brim Vented Safety Helmet,336117815,109.97,2026-11-06,2026-11-06,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1014292870
 1014293452,"8 ft. 6-Outlet Surge Protector with 45° Flat Angle Plug, Black",336600135,14.88,2026-11-07,2026-11-07,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1014293452
 1015028835,Scale White 3 in. x 8.5 in. Matte Rectangle Ceramic Wall Tile (5.70 sq. ft. /Case),339672150,45.53,2026-11-17,2026-11-17,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1015028835
 1015125935,50-Watt Equivalent PAR20 Dimmable Adjustable Beam Angle LED Light Bulb With Seletable White (1-Pack),336844214,9.98,2026-11-17,2026-11-17,pennyrecon,1,1,0,0,0,https://www.homedepot.com/s/1015125935
@@ -263,6 +263,7 @@ upc:721015365631,Glacier Bay 2-piece 1.28 GPF Single Flush Elongated Toilet in W
 1003095818,"Brown Embossed Mocha 3 ft. x 4 ft. Indoor, Outdoor Door Mat",304613530,18.98,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1003095818
 1003097324,3 in. Cut-Off Tool,304783951,,2026-10-28,2026-10-28,pennyrecon,,,,,,https://www.homedepot.com/s/1003097324
 1003163723,Navy 1.5 in. x 30 in. Rug Runner Edge,305134037,17.98,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1003163723
+1003222344,WeatherTech 24 in. x 39 in. Grey Indoor Mat,305421211,43.95,2026-11-02,2026-11-06,"pennyrecon,paydirt",,,,,,https://www.homedepot.com/s/1003222344
 1003327593,Ceilume Stratford White Feather-Light 2 ft. x 2 ft. Lay-in Ceiling Panel (Case of 10) HD-STRATF-22WTO,205389663,81.0,2026-11-02,2026-11-05,"pennyrecon,paydirt",,,,,,https://www.homedepot.com/s/1003327593
 1003330504,"60-Watt Equivalent G63 Dimmable Spiral Filament Oversized Amber Glass E26 Vintage Edison LED Light Bulb, Warm White",304774705,32.97,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1003330504
 1003330505,60-Watt Equivalent ST52 Dimmable Spiral Filament Oversized Amber Glass E26 Vintage Edison LED Light Bulb Warm White,304774707,27.09,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1003330505
@@ -270,6 +271,7 @@ upc:721015365631,Glacier Bay 2-piece 1.28 GPF Single Flush Elongated Toilet in W
 1003800389,Bricks Brown 24 in. x 36 in. Door Mat,306809334,23.98,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1003800389
 1004296673,Smart Lighting White Motion Activated Outdoor Integrated LED Flood Light,308537544,69.99,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1004296673
 1004296835,Smart Lighting Black Motion Activated Outdoor Integrated LED Floodlight Wired,308537582,69.99,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1004296835
+1004330413,Commercial 8 ft. (Two 4ft.) 440 Watt Equivalent Integrated LED White Multi-Volt Strip Light Fixture 11000 Lumens 4000K,314010411,98.97,2026-11-06,2026-11-06,pennyrecon,,,,,,https://www.homedepot.com/s/1004330413
 1004512186,7 Gal. Black Rectangular Trash Can,309820165,8.39,2026-10-03,2026-10-03,pennyrecon,,,,,,https://www.homedepot.com/s/1004512186
 1004593541,Chamberlain 8 in. Widespread 2-Handle Bathroom Faucet in Matte Black,310483349,169.0,2026-11-03,2026-11-03,pennyrecon,,,,,,https://www.homedepot.com/s/1004593541
 1004814382,"Lyndall Mod 59.9 in. W x 59-1/4 in. H Frameless Soft Close Sliding Shower/Bathtub Door, Nickel, Clear Glass",311423349,909.0,2026-11-01,2026-11-01,pennyrecon,,,,,,https://www.homedepot.com/s/1004814382
@@ -391,6 +393,7 @@ upc:721015365631,Glacier Bay 2-piece 1.28 GPF Single Flush Elongated Toilet in W
 1013986442,Lachlan Large Beige Lavastone Round Planter with Drainage Plug (16 in. L x 16 in. W x 13 in. H),335087336,79.97,2026-10-25,2026-10-25,pennyrecon,,,,,,https://www.homedepot.com/s/1013986442
 1014119123,UltraBrite Hex Lights 16Pack 16.5 in./1.45ft Integrated LED Strip Light Fixture White Dimmable 16000LM 5000K Wall Remote,335347113,99.75,2026-11-04,2026-11-04,pennyrecon,,,,,,https://www.homedepot.com/s/1014119123
 1014175567,Stoney Point Oak 22 MIL x 9 in. W x 48 in. L Click Lock Waterproof Luxury Vinyl Plank Flooring (21.6 sq. ft. /case),336185421,64.58,2026-11-03,2026-11-03,pennyrecon,,,,,,https://www.homedepot.com/s/1014175567
+1014292870,BOLT White Type 2 Class C Full Brim Vented Safety Helmet,336117815,109.97,2026-11-06,2026-11-06,pennyrecon,,,,,,https://www.homedepot.com/s/1014292870
 1014485906,Highburst 90-Watt Equivalent 6500K E26 4-Panel Adjustable10000-Lumen LED Specialty Light Bulb,337518194,39.99,2026-10-20,2026-10-20,pennyrecon,,,,,,https://www.homedepot.com/s/1014485906
 1014784879,Twin Pack 9 in. 1 Light Black LED Rechargeable Sconce Light with Frosted Acrylic Shade,338651974,49.97,2026-10-17,2026-10-17,pennyrecon,,,,,,https://www.homedepot.com/s/1014784879
 1014855340,40-Watt Equivalent A19 A-Style Ultra Definition Dimmable Clear Glass E26 LED Light Bulb Daylight 5000K (2-Pack),323293940,8.98,2026-10-03,2026-10-03,pennyrecon,,,,,,https://www.homedepot.com/s/1014855340
