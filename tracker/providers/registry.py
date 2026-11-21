@@ -5,7 +5,7 @@ import os
 
 
 def available() -> list[str]:
-    return ["hd_direct", "licensed_api", "sample"]
+    return ["hd_direct", "licensed_api", "sample", "mock"]
 
 
 def get_provider(name: str | None = None):
@@ -13,6 +13,9 @@ def get_provider(name: str | None = None):
     if name == "sample":
         from .sample import SampleProvider
         return SampleProvider(os.getenv("SAMPLE_OBSERVATIONS") or None)
+    if name == "mock":
+        from .mock import MockProvider
+        return MockProvider.from_file(os.getenv("MOCK_PROVIDER_FILE") or None)
     if name == "licensed_api":
         from .licensed_api import LicensedApiProvider
         return LicensedApiProvider()

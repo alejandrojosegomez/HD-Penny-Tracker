@@ -75,6 +75,59 @@ CREATE TABLE IF NOT EXISTS runs (
   ok INTEGER,
   detail TEXT
 );
+-- collector / API bookkeeping (additive; nothing above changes)
+CREATE TABLE IF NOT EXISTS collection_jobs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  trigger TEXT NOT NULL,              -- schedule | manual | api | dashboard | cli
+  provider TEXT NOT NULL,
+  status TEXT NOT NULL,               -- queued | running | succeeded | stopped | failed | skipped
+  params TEXT,                        -- JSON: requested products / skus / stores
+  started_at TEXT, finished_at TEXT,
+  products_processed INTEGER DEFAULT 0,
+  stores_processed INTEGER DEFAULT 0,
+  requests INTEGER DEFAULT 0,
+  cached INTEGER DEFAULT 0,
+  saved INTEGER DEFAULT 0,
+  duplicates INTEGER DEFAULT 0,
+  rejected INTEGER DEFAULT 0,
+  unavailable INTEGER DEFAULT 0,
+  errors INTEGER DEFAULT 0,
+  price_changes INTEGER DEFAULT 0,
+  detail TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS provider_errors (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  job_id INTEGER,
+  provider TEXT NOT NULL,
+  status TEXT NOT NULL,               -- a providers.Status value, or 'rejected' / 'budget'
+  internet_number TEXT, hd_store_id TEXT,
+  detail TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_provider_errors ON provider_errors(created_at DESC);
+CREATE TABLE IF NOT EXISTS provider_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  provider TEXT NOT NULL,
+  at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_provider_requests ON provider_requests(provider, at);
+CREATE TABLE IF NOT EXISTS provider_cache (
+  provider TEXT NOT NULL,
+  internet_number TEXT NOT NULL,
+  hd_store_id TEXT NOT NULL,
+  payload TEXT NOT NULL,
+  fetched_at TEXT NOT NULL,
+  PRIMARY KEY (provider, internet_number, hd_store_id)
+);
+CREATE TABLE IF NOT EXISTS api_usage (
+  key_name TEXT NOT NULL,
+  day TEXT NOT NULL,
+  requests INTEGER NOT NULL DEFAULT 0,
+  last_path TEXT,
+  last_at TEXT,
+  PRIMARY KEY (key_name, day)
+);
 """
 
 
@@ -152,9 +205,29 @@ class SQLiteStorage:
     def history(self, product_id: int, store_id: int, days: int = 120) -> list[dict]:
         since = (datetime.now(UTC) - timedelta(days=days)).isoformat(timespec="seconds")
         return self._q(
-            "SELECT * FROM price_history WHERE product_id=? AND store_id=? AND scraped_at>=? ORDER BY scraped_at",
+            "SELECT * FROM price_history WHERE product_id=? AND store_id=? AND scraped_at>=? ORDER BY scraped_at, id",
             (product_id, store_id, since),
         )
+
+    def find_observation(self, product_id: int, store_id: int, source: str, observed_at: str,
+                         price, original_price, stock, availability) -> Optional[int]:
+        """id of an identical observation already stored (same source and observed_at), else None.
+        Used by providers.save to keep re-sent observations from becoming duplicate rows."""
+        rows = self._q(
+            "SELECT id FROM price_history WHERE product_id=? AND store_id=? "
+            "AND json_extract(raw,'$.source')=? AND json_extract(raw,'$.observed_at')=? "
+            "AND price IS ? AND original_price IS ? AND stock IS ? AND availability IS ? LIMIT 1",
+            (product_id, store_id, source, observed_at, price, original_price, stock, availability))
+        return rows[0]["id"] if rows else None
+
+    def last_price_row(self, product_id: int, store_id: int) -> Optional[dict]:
+        rows = self._q("SELECT * FROM price_history WHERE product_id=? AND store_id=? ORDER BY id DESC LIMIT 1",
+                       (product_id, store_id))
+        return rows[0] if rows else None
+
+    def product_by_sku(self, sku: str) -> Optional[dict]:
+        rows = self._q("SELECT * FROM products WHERE sku=? ORDER BY id LIMIT 1", (str(sku).strip(),))
+        return rows[0] if rows else None
 
     def latest_prices(self) -> list[dict]:
         """One row per (product, store): the most recent observation, joined with product + store."""

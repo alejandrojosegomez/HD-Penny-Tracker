@@ -1,4 +1,8 @@
 # One image, two services. Build with `docker compose build`, start with `docker compose up -d`.
+#   worker: scheduler -> collection engine (tracker/collector) + scoring + Telegram
+#   web:    dashboard (/), its local API (/api/*) and the authenticated API (/v1/*, X-API-Key)
+# Run one collection job by hand:  docker compose exec worker python -m tracker collect --provider mock
+# Both read the settings in .env (API_KEYS, PRICE_PROVIDER, COLLECTOR_*); see docs/PLATFORM.md.
 x-app: &app
   image: hd-penny-tracker:latest
   env_file: .env
@@ -25,8 +29,9 @@ services:
     depends_on: [worker]
     command: python -m tracker serve
     ports:
-      # only this computer can open the dashboard. To use it from your phone on the same
-      # Wi-Fi, change to "8000:8000" (anyone on that network can then reach it).
+      # only this computer can open the dashboard and the API. To use them from your phone or
+      # another app on the same Wi-Fi, change to "8000:8000": anyone on that network can then
+      # open the dashboard (it has no login); /v1 still needs an API key.
       - "127.0.0.1:8000:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health', timeout=4).status == 200 else 1)"]

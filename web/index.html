@@ -100,6 +100,9 @@ button,input,select{font:inherit;color:inherit}
 .bar{height:5px;width:70px;border-radius:99px;background:var(--soft);overflow:hidden;align-self:center}
 .bar i{display:block;height:100%;background:var(--spread);border-radius:99px}
 
+.sec{padding:10px 16px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+  background:var(--soft);border-top:1px solid var(--line)}
+.sec:first-child{border-top:0}
 .empty{padding:48px 20px;text-align:center;color:var(--muted)}
 .empty .big{font-size:36px;margin-bottom:8px}
 .skel{height:64px;border-top:1px solid var(--line);background:linear-gradient(90deg,var(--panel),var(--soft),var(--panel));background-size:200% 100%;animation:sh 1.2s infinite}
@@ -167,6 +170,8 @@ button,input,select{font:inherit;color:inherit}
       <h6>Mis tiendas</h6>
       <button data-v="stores"><span class="ic">🏬</span>Vigilados<span class="n" id="n-stores">·</span></button>
       <button data-v="alerts"><span class="ic">🔔</span>Alertas<span class="n" id="n-alerts">·</span></button>
+      <h6>Sistema</h6>
+      <button data-v="monitor"><span class="ic">📈</span>Monitoreo<span class="n" id="n-monitor">·</span></button>
     </nav>
     <div class="status">
       <div class="st"><span class="dot" id="d-brain"></span>Cerebro<small id="s-brain">—</small></div>
@@ -222,7 +227,7 @@ const safeUrl = u => /^https?:\/\//i.test(u || '') ? esc(u) : '#';
 const fmt = n => Number(n || 0).toLocaleString('es');
 
 let view = 'spread', chip = 'all';
-const data = { products: [], days: 0, model: null, items: [], alerts: [], stores: [], watch: [], brainOk: null };
+const data = { products: [], days: 0, model: null, items: [], alerts: [], stores: [], watch: [], brainOk: null, mon: null };
 
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
 
@@ -266,6 +271,10 @@ async function loadLocal(){
       fetch('/api/products').then(r=>r.ok?r.json():[])]);
     data.stores = stores; data.alerts = alerts; data.health = health; data.watch = watch;
   }catch(e){}
+}
+
+async function loadMonitor(){
+  try{ data.mon = await fetch('/api/monitoring').then(r => r.ok ? r.json() : null); }catch(e){ data.mon = null; }
 }
 
 // ---- manual price form ----
@@ -337,6 +346,7 @@ function counts(){
   $('#n-all').textContent = fmt(data.products.length);
   $('#n-stores').textContent = fmt(data.items.length);
   $('#n-alerts').textContent = fmt(data.alerts.length);
+  $('#n-monitor').textContent = data.mon ? (data.mon.last_24h.provider_errors ? '⚠' : '✓') : '·';
   const done = Math.min(data.days, TARGET_DAYS), trained = data.model && data.model.trained;
   $('#d-brain').className = 'dot ' + (data.brainOk ? 'ok' : data.brainOk===false ? 'off' : '');
   $('#s-brain').textContent = data.brainOk===false ? 'sin datos' : trained ? `AUC ${data.model.cv_auc}` : `día ${done}/${TARGET_DAYS}`;
@@ -353,7 +363,51 @@ const HEAD = {
   all:    ['📦 Todos los productos', 'Todo lo que el cerebro ha visto en las listas de la comunidad'],
   stores: ['🏬 Vigilados en mis tiendas', 'Productos que el tracker revisa en tus 4 tiendas de Melbourne'],
   alerts: ['🔔 Alertas', 'Lo que el tracker marcó para ir a escanear'],
+  monitor: ['📈 Monitoreo', 'Recolección de precios, proveedores y uso de la API'],
 };
+
+const JOB_ST = { queued:['En cola','mut'], running:['Corriendo','sp'], succeeded:['OK','fl'], stopped:['Detenido','hot'],
+                 failed:['Falló','hot'], skipped:['Omitido','mut'], never_run:['Nunca corrió','mut'] };
+const when = t => t ? new Date(t).toLocaleString('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+function monitorStats(){
+  const m = data.mon, tile = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  if (!m){ $('#stats').innerHTML = ''; return; }
+  const st = JOB_ST[m.collection_status] || [m.collection_status, 'mut'], d = m.last_24h;
+  const reqs = m.provider_usage_today.reduce((a, u) => a + u.requests, 0);
+  const api = m.api_usage_today.reduce((a, u) => a + u.requests, 0);
+  $('#stats').innerHTML =
+    tile('⚙️ Recolección', esc(st[0]), `último OK: ${when(m.last_successful_collection)}`) +
+    tile('📦 Procesados', `${fmt(m.last_job_products_processed)} · ${fmt(m.last_job_stores_processed)}`, 'productos · tiendas (último job)') +
+    tile('💲 Cambios de precio', fmt(d.price_changes), 'últimas 24 h, todas las fuentes') +
+    tile('⚠️ Errores', fmt(d.provider_errors), `proveedor ${fmt(reqs)} pedidos hoy · API ${fmt(api)}`);
+}
+function monitorHtml(m){
+  const sec = t => `<div class="sec">${esc(t)}</div>`;
+  const row = (ic, t, sub, tags) => `<div class="row"><div class="av">${ic}</div><div style="min-width:0"><div class="t">${t}</div><div class="sub">${sub}</div></div><div class="tags">${tags}</div></div>`;
+  const tag = (txt, cls) => `<span class="tag ${cls}">${esc(txt)}</span>`;
+  let h = sec('Jobs recientes');
+  h += m.recent_jobs.length ? m.recent_jobs.map(j => { const s = JOB_ST[j.status] || [j.status,'mut'];
+      return row('⚙️', `#${j.id} · ${esc(j.provider)} · ${esc(j.trigger)}`,
+        `<span>${when(j.created_at)}</span><span>${fmt(j.products_processed)} productos · ${fmt(j.stores_processed)} tiendas</span>` +
+        `<span>${fmt(j.saved)} guardados · ${fmt(j.rejected)} rechazados · ${fmt(j.errors)} errores · ${fmt(j.price_changes)} cambios</span>` +
+        (j.detail ? `<span>${esc(j.detail)}</span>` : ''), tag(s[0], s[1])); }).join('')
+    : `<div class="empty">Todavía no ha corrido ninguna recolección.</div>`;
+  h += sec('Uso hoy');
+  const usage = [...m.provider_usage_today.map(u => row('🔌', `Proveedor ${esc(u.provider)}`,
+                    `<span>${fmt(u.requests)} pedidos${u.limit_per_day ? ` de ${fmt(u.limit_per_day)} por día` : ''}</span>`, '')),
+                 ...m.api_usage_today.map(u => row('🔑', `API · ${esc(u.key_name)}`,
+                    `<span>${fmt(u.requests)} pedidos</span><span>último: ${esc(u.last_path || '')} ${when(u.last_at)}</span>`, ''))];
+  h += usage.join('') || `<div class="empty">Sin pedidos hoy.</div>`;
+  h += sec('Cambios de precio (24 h)');
+  h += m.recent_price_changes.map(c => row('💲', esc(c.name || 'Item ' + c.internet_number),
+        `<span>${esc(c.store_name)} #${esc(c.hd_store_id)}</span><span>$${Number(c.prev_price ?? 0).toFixed(2)} → $${Number(c.price ?? 0).toFixed(2)}</span>` +
+        `<span>${esc(c.source || '')}</span><span>${when(c.scraped_at)}</span>`, '')).join('') || `<div class="empty">Sin cambios en 24 h.</div>`;
+  h += sec('Errores del proveedor');
+  h += m.recent_errors.map(e => row('⚠️', `${esc(e.provider)} · ${esc(e.status)}`,
+        `<span>${esc(e.internet_number || '')}${e.hd_store_id ? ' @ ' + esc(e.hd_store_id) : ''}</span><span>${esc(e.detail || '')}</span><span>${when(e.created_at)}</span>`,
+        tag(e.status, e.status === 'rejected' || e.status === 'unavailable' ? 'mut' : 'hot'))).join('') || `<div class="empty">Sin errores.</div>`;
+  return h;
+}
 
 function stats(){
   const fl = sets.fl().length, sp = sets.spread();
@@ -411,6 +465,7 @@ function alertRow(a){
 
 function render(){
   const [t, s] = HEAD[view]; $('#title').textContent = t; $('#subtitle').textContent = s;
+  if (view === 'monitor') monitorStats(); else stats();
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.v === view));
   const q = $('#q').value.trim().toLowerCase();
   const match = x => !q || `${x.name} ${x.sku} ${x.internet_number}`.toLowerCase().includes(q);
@@ -434,6 +489,10 @@ function render(){
     $('#toolbar').innerHTML = `<div class="add"><input id="addn" placeholder="Agregar internet # (9-10 dígitos)" inputmode="numeric"><button class="btn" id="addbtn">Agregar</button></div><span class="sp">${fmt(rows.length)} producto-tienda</span>`;
     html = rows.map(storeRow).join('') || empty('🏬','Nada vigilado todavía','Agrega un internet # arriba.');
     $('#addbtn').onclick = add;
+  } else if (view === 'monitor'){
+    $('#toolbar').innerHTML = `<button class="btn sm" id="monref">Actualizar</button><span class="sp">${data.mon ? 'actualizado ' + when(data.mon.time) : ''}</span>`;
+    html = data.mon ? monitorHtml(data.mon) : empty('📡','Sin datos de monitoreo','¿Está prendido el tracker?');
+    $('#monref').onclick = async () => { await loadMonitor(); counts(); render(); };
   } else {
     rows = data.alerts.filter(match);
     $('#toolbar').innerHTML = `<span class="sp">${fmt(rows.length)} alertas</span>`;
@@ -452,7 +511,8 @@ async function add(){
   toast(j.added ? 'Agregado ✅' : 'Ya estaba en la lista'); $('#addn').value = '';
 }
 
-$('#nav').onclick = e => { const b = e.target.closest('button'); if (!b) return; view = b.dataset.v; chip = 'all'; $('#side').classList.remove('open'); render(); };
+$('#nav').onclick = async e => { const b = e.target.closest('button'); if (!b) return; view = b.dataset.v; chip = 'all'; $('#side').classList.remove('open');
+  render(); if (view === 'monitor'){ await loadMonitor(); counts(); render(); } };
 $('#toolbar').onclick = e => { const c = e.target.closest('[data-chip]'); if (c){ chip = c.dataset.chip; render(); } };
 $('#list').onclick = e => {
   const n = e.target.closest('[data-note]'); if (n){ prefill(n.dataset.note, n.dataset.store); return; }
@@ -463,9 +523,10 @@ $('#menu').onclick = () => $('#side').classList.toggle('open');
 document.addEventListener('click', e => { if ($('#side').classList.contains('open') && !e.target.closest('#side,#menu')) $('#side').classList.remove('open'); });
 
 (async () => {
-  await Promise.all([loadBrain(), loadLocal()]);
+  await Promise.all([loadBrain(), loadLocal(), loadMonitor()]);
   setupForm(); counts(); stats(); render(); connect();
-  setInterval(async () => { await loadBrain(); counts(); stats(); if (view in sets) render(); }, 300000);
+  setInterval(async () => { await loadBrain(); counts(); if (view !== 'monitor') stats(); if (view in sets) render(); }, 300000);
+  setInterval(async () => { await loadMonitor(); counts(); if (view === 'monitor') render(); }, 60000);
 })();
 </script>
 </body>

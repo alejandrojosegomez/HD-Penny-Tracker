@@ -18,7 +18,7 @@ log = logging.getLogger("tracker.scheduler")
 
 def scrape_then_detect() -> None:
     try:
-        res = scraper.scrape_all()
+        res = scraper.scrape_all(trigger="schedule")
         if not res.get("stopped"):
             detect.run()
     except Exception as e:

@@ -11,6 +11,10 @@ DEFAULT_PATH = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "sam
 
 class SampleProvider:
     name = "sample"
+    mocked = True
+    cache_allowed = True
+    # fixture rows are per store, but they are made up: nothing here is verified real data
+    capabilities = {"store_level_price": True, "inventory": True}
 
     def __init__(self, path: Path | str | None = None):
         self.path = Path(path) if path else DEFAULT_PATH

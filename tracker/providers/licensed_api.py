@@ -19,8 +19,15 @@ import time
 from .base import Observation, ProviderResult, Status
 
 
+def _declared_capabilities() -> dict:
+    """PRICE_API_CAPABILITIES=store_level_price,inventory  (only what the vendor was verified to give)."""
+    raw = os.getenv("PRICE_API_CAPABILITIES", "")
+    return {c.strip(): True for c in raw.split(",") if c.strip()}
+
+
 class LicensedApiProvider:
     name = "licensed_api"
+    mocked = False
 
     def __init__(self, api_key: str | None = None, base_url: str | None = None,
                  min_interval: float | None = None):
@@ -29,6 +36,13 @@ class LicensedApiProvider:
         # seconds between requests; set to whatever the vendor's plan allows
         self.min_interval = float(min_interval if min_interval is not None
                                   else os.getenv("PRICE_API_MIN_INTERVAL", "1"))
+        # only what the vendor was verified to provide (PRICE_API_CAPABILITIES); nothing by default
+        self.capabilities = _declared_capabilities()
+        # keep responses only when the vendor's terms say so (PRICE_API_CACHE_ALLOWED=true)
+        self.cache_allowed = os.getenv("PRICE_API_CACHE_ALLOWED", "false").strip().lower() == "true"
+        # the vendor plan's own limits; the collector also applies COLLECTOR_MAX_PER_* (stricter wins)
+        self.max_per_minute = int(os.getenv("PRICE_API_MAX_PER_MINUTE", "0") or 0)
+        self.max_per_day = int(os.getenv("PRICE_API_MAX_PER_DAY", "0") or 0)
 
     def fetch(self, internet_number: str, store: dict) -> ProviderResult:
         if not self.api_key or not self.base_url:

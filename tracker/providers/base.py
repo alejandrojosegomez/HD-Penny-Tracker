@@ -86,7 +86,26 @@ class ProviderResult:
         return cls(Status.OK, obs)
 
 
+# What a provider is verified to return. Everything defaults to False: a source is not
+# assumed to give store-level clearance prices or inventory until that has been checked.
+CAPABILITIES = ("store_level_price", "clearance_price", "inventory", "sku_lookup")
+
+
+def capabilities_of(provider) -> dict:
+    declared = getattr(provider, "capabilities", None) or {}
+    return {k: bool(declared.get(k, False)) for k in CAPABILITIES}
+
+
 class Provider(Protocol):
+    """Required: name, fetch(), pause().
+
+    Optional attributes the collector reads with getattr():
+      capabilities: dict    see CAPABILITIES; anything missing counts as False
+      cache_allowed: bool   True only when the source's terms allow keeping responses
+      mocked: bool          True for fixtures / fakes (never real data)
+      max_per_minute / max_per_day: int   the source's own request limits (0 = none)
+      lookup_sku(sku) -> str | None       internet number for a store SKU
+    """
     name: str
 
     def fetch(self, internet_number: str, store: dict) -> ProviderResult:
