@@ -2,7 +2,13 @@ name: Brain daily
 
 on:
   schedule:
-    - cron: "0 12 * * *"   # 12:00 UTC = 7:00 AM Florida (EST); 8:00 AM during daylight time
+    # GitHub sometimes skips a scheduled run entirely (2026-11-21). The first cron is the
+    # main run; the others are backups that only run the brain if today's run is missing
+    # (see brain/guard.py), so there is never a second Telegram summary on the same day.
+    # Keep the first entry in sync with PRIMARY_CRON below.
+    - cron: "0 12 * * *"    # main:   12:00 UTC = 7:00 AM Florida (EST); 8:00 AM during daylight time
+    - cron: "17 14 * * *"   # backup: 9:17 AM Florida (EST)
+    - cron: "43 17 * * *"   # backup: 12:43 PM Florida (EST)
   workflow_dispatch:        # "Run workflow" button in the Actions tab
     inputs:
       simulate_failure:
@@ -23,8 +29,13 @@ jobs:
     timeout-minutes: 20
     env:
       TZ: America/New_York
+      PRIMARY_CRON: "0 12 * * *"
     steps:
+      # check out the branch as it is when this job starts (not the commit the schedule fired
+      # on), so a backup that waited behind the main run sees the main run's saved state
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
 
       - uses: actions/setup-python@v6
         with:
@@ -36,13 +47,22 @@ jobs:
         id: install
         run: pip install -r brain/requirements.txt
 
+      - name: Already ran today?
+        id: guard
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: python -m brain.guard --event "$EVENT" --schedule "$SCHEDULE" --primary "$PRIMARY_CRON"
+
       - name: Simulated failure (test only)
         id: simulated
-        if: ${{ inputs.simulate_failure }}
+        if: ${{ inputs.simulate_failure && steps.guard.outputs.run == 'true' }}
         run: echo "::error::Simulated failure to test the Slack alert" && exit 1
 
       - name: Collect, train, report
         id: brain
+        if: steps.guard.outputs.run == 'true'
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -51,7 +71,7 @@ jobs:
 
       - name: Save what the brain learned
         id: save
-        if: always()
+        if: always() && steps.guard.outputs.run == 'true'
         run: |
           set -o pipefail
           (
@@ -75,6 +95,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           OUT_INSTALL: ${{ steps.install.outcome }}
+          OUT_GUARD: ${{ steps.guard.outcome }}
           OUT_SIMULATED: ${{ steps.simulated.outcome }}
           OUT_BRAIN: ${{ steps.brain.outcome }}
           OUT_SAVE: ${{ steps.save.outcome }}
