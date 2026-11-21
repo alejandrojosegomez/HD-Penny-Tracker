@@ -1,0 +1,20 @@
+{
+  "_comment": "Made-up responses for the mock provider. Not real Home Depot data.",
+  "skus": {
+    "1001234567": "1006423739",
+    "1009876543": "1004871058"
+  },
+  "observations": [
+    {"internet_number": "1006423739", "hd_store_id": "0260", "price": 0.06, "original_price": 129.0,
+     "stock": 2, "availability": "limited", "sku": "1001234567", "name": "Mock vanity light (not real data)"},
+    {"internet_number": "1006423739", "hd_store_id": "6381", "price": 129.0, "original_price": 129.0,
+     "stock": 5, "availability": "in_stock"},
+    {"internet_number": "1006423739", "hd_store_id": "6336", "price": 64.5, "original_price": 129.0,
+     "stock": 3, "availability": "in_stock"},
+    {"internet_number": "1006423739", "hd_store_id": "0430", "status": "unavailable"},
+    {"internet_number": "1004871058", "hd_store_id": "0260", "price": 49.03, "original_price": 99.97,
+     "stock": 1, "availability": "limited", "sku": "1009876543", "name": "Mock drill kit (not real data)"},
+    {"internet_number": "1004871058", "hd_store_id": "6381", "price": 99.97, "original_price": 99.97,
+     "stock": 4, "availability": "in_stock"}
+  ]
+}

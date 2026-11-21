@@ -82,6 +82,17 @@ class Settings:
 
 settings = Settings()
 
+
+def api_keys() -> dict[str, str]:
+    """API_KEYS=name1:key1,name2:key2 -> {key: name}. Read on every call so a .env change
+    applies after a restart and tests can set it. Keys shorter than 16 characters are ignored."""
+    out: dict[str, str] = {}
+    for part in os.getenv("API_KEYS", "").split(","):
+        name, sep, key = part.strip().partition(":")
+        if sep and name.strip() and len(key.strip()) >= 16:
+            out[key.strip()] = name.strip()
+    return out
+
 WATCHLIST_PATH = CONFIG_DIR / "watchlist.csv"
 WATCHLIST_FIELDS = ["internet_number", "category", "note", "source"]
 

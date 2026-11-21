@@ -1,7 +1,8 @@
 # Price providers
 
 Store-level prices reach `price_history` through one path: a provider returns an
-`Observation`, and `save.save_observation()` writes it. Manual entry (`tracker/manual.py`)
+`Observation`, the collector (`tracker/collector/`) validates it, and `save.save_observation()`
+writes it. Re-sending an identical observation (same source, observed_at and values) adds nothing. Manual entry (`tracker/manual.py`)
 builds the same `Observation`, so alerts and scoring don't care where a price came from.
 
 ## Observation (base.py)
@@ -28,6 +29,13 @@ notice and makes no further requests until the next scheduled run. The other non
 statuses are logged and the run moves on.
 
 ## Providers
+
+Optional attributes the collector reads: `mocked`, `cache_allowed`, `capabilities`
+(`store_level_price`, `clearance_price`, `inventory`, `sku_lookup`; anything missing is False),
+`max_per_minute`, `max_per_day`, and `lookup_sku(sku)`. See docs/PLATFORM.md.
+
+- **`mock.py`**: scriptable fake responses (fixtures/mock_responses.json or MOCK_PROVIDER_FILE),
+  SKU lookups, per-call sequences and any status. Observations are marked `mocked`.
 
 - **`sample.py`**: reads a JSON list of observations (`tests/fixtures/sample_observations.json`).
   A row may carry `"status": "rate_limited"` (or any status) to simulate a failure.

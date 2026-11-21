@@ -21,6 +21,7 @@ from . import __version__
 from .detect import score_history
 from .settings import append_watchlist, settings
 from .storage import get_storage
+from .api_v1 import router as api_v1_router
 
 INDEX = Path(__file__).parent.parent / "web" / "index.html"
 
@@ -33,6 +34,11 @@ app = FastAPI(
         {"name": "alerts", "description": "Scored alerts created by detect.py."},
         {"name": "jobs", "description": "Trigger scrape / detect / community runs in the background."},
         {"name": "system", "description": "Health, stores, run history, live stream."},
+        {"name": "v1 products", "description": "Authenticated API (X-API-Key): products."},
+        {"name": "v1 stores", "description": "Authenticated API: stores and their latest prices."},
+        {"name": "v1 prices", "description": "Authenticated API: price history and observation submission."},
+        {"name": "v1 jobs", "description": "Authenticated API: start collection jobs and read their status."},
+        {"name": "v1 system", "description": "Health (no key) and monitoring."},
     ],
 )
 app.add_middleware(
@@ -206,7 +212,7 @@ def _run_job(job: str) -> None:
     try:
         if job == "scrape":
             from .scraper import scrape_all
-            scrape_all()
+            scrape_all(trigger="dashboard")
             from .detect import run
             run()
         elif job == "detect":
@@ -236,6 +242,13 @@ def health():
                   scrape_enabled=settings.scrape_enabled, products=len(db.products()), stores=len(db.stores()),
                   last_scrape=runs[0]["finished_at"] if runs else None,
                   time=datetime.now(timezone.utc).isoformat(timespec="seconds"))
+
+
+@app.get("/api/monitoring", tags=["system"])
+def api_monitoring():
+    """Collector status for the local dashboard (same data as the authenticated GET /v1/monitoring)."""
+    from .collector.monitor import snapshot
+    return snapshot(get_storage())
 
 
 @app.get("/api/stores", response_model=list[Store], tags=["system"])
@@ -348,6 +361,9 @@ async def stream():
                 yield {"event": "items", "data": json.dumps(_items())}
             await asyncio.sleep(5)
     return EventSourceResponse(gen())
+
+
+app.include_router(api_v1_router)
 
 
 def main() -> None:

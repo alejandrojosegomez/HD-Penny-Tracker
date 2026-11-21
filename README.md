@@ -72,8 +72,13 @@ When scraping is on, prices come from the provider named in `PRICE_PROVIDER` (`t
 | `hd_direct` (default) | The original client in `tracker/hd_client.py`. Home Depot's Akamai Bot Manager blocks it; kept only so existing setups behave the same. |
 | `licensed_api` | Integration point for a licensed price/inventory data API. Not wired to a vendor yet: fill in `_request` / `_normalize` once a vendor's terms are confirmed to allow this use. Key goes in `PRICE_API_KEY`. |
 | `sample` | Reads `tests/fixtures/sample_observations.json` (or `SAMPLE_OBSERVATIONS`). No network; for development and tests. |
+| `mock` | Scriptable fake responses (`tracker/providers/fixtures/mock_responses.json`), including SKU lookups and simulated errors. No network; marked `mocked` in the data. |
 
 A refusal (`access_denied` or `rate_limited`) ends the run immediately with a Telegram notice: no retries, no extra requests until the next schedule. The project does not try to get around Home Depot's bot protection (no CAPTCHA solving, stealth browsing, fingerprint spoofing or proxy rotation). Details in `tracker/providers/README.md`.
+
+### Collector and API (HD Penny Intelligence Platform)
+
+A collection engine (`python -m tracker collect`, scheduled jobs, single products, SKUs or stores, request budget, cache, validation, job history) and an authenticated JSON API under `/v1` (`X-API-Key`) for other apps: products, stores, price history, observation submission, collection jobs, monitoring. The dashboard has a new **📈 Monitoreo** view. Everything runs through the same provider interface and the same single write path as manual entry. **No live data source is connected yet:** `mock` and `sample` are fake data. Setup, Windows PowerShell commands, endpoint reference and what's needed for a live source: [docs/PLATFORM.md](docs/PLATFORM.md).
 
 **Stores** live in `config/stores.yaml` (mine: `0260` West Melbourne, `6381` N Melbourne, `6336` Palm Bay, `0430` Viera). **Storage** is SQLite by default; set `DATABASE_MODE=supabase` to write through to Postgres (`supabase/schema.sql`).
 
@@ -88,6 +93,9 @@ tracker/
   scraper.py    watchlist × stores               scheduler.py  jobs
   community.py  public penny lists               web.py        dashboard API + SSE
   storage.py    SQLite / Supabase                cli.py        python -m tracker …
+  collector/    collection engine, budget, cache, validation, jobs, monitoring
+  providers/    adapter interface + mock / sample / licensed_api / hd_direct
+  api_v1.py     authenticated /v1 API
 ```
 
 ## Notes

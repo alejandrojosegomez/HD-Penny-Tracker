@@ -11,6 +11,9 @@ from .base import Observation, ProviderResult, Status
 
 class HDDirectProvider:
     name = "hd_direct"
+    mocked = False
+    cache_allowed = False
+    capabilities = {}            # blocked by Akamai: nothing verified
 
     def __init__(self):
         from ..hd_client import HDClient      # imports the browser stack only when chosen
