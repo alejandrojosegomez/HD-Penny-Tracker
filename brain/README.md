@@ -2,7 +2,7 @@
 
 Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen por Telegram.
 
-🟡 **Aprendiendo** · `█████████░░░░░░░░░░░` 7/15 días para el primer entrenamiento
+🟡 **Aprendiendo** · `███████████░░░░░░░░░` 8/15 días para el primer entrenamiento
 
 🎯 Aciertos: se miden desde el 2026-12-01
 
@@ -17,8 +17,8 @@ Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen 
 | 5 | 2026-11-19 | ✅ listo | 428 | 8 | 33 | 23 | [ver](reports/2026/11/2026-11-19.md) |
 | 6 | 2026-11-20 | ✅ listo | 428 | 0 | 31 | 25 | [ver](reports/2026/11/2026-11-20.md) |
 | 7 | 2026-11-21 | ✅ listo | 431 | 3 | 33 | 25 | [ver](reports/2026/11/2026-11-21.md) |
-| 8 | 2026-11-22 | `█████░░░░░` 🔄 en progreso | | | | | |
-| 9 | 2026-11-23 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
+| 8 | 2026-11-22 | ✅ listo | 434 | 3 | 32 | 25 | [ver](reports/2026/11/2026-11-22.md) |
+| 9 | 2026-11-23 | `█████░░░░░` 🔄 en progreso | | | | | |
 | 10 | 2026-11-24 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
 | 11 | 2026-11-25 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
 | 12 | 2026-11-26 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
@@ -30,10 +30,10 @@ Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen 
 
 | # | Producto | SKU | Estados ganados (7 días) | Estados | Reportes |
 |--:|---|---|:-:|--:|--:|
-| 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | **+10** | 12 | 16 |
-| 2 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+7** | 13 | 23 |
+| 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | **+10** | 12 | 17 |
+| 2 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+8** | 14 | 25 |
 | 3 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+3** | 4 | 4 |
-| 4 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+2** | 7 | 15 |
+| 4 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+2** | 7 | 16 |
 | 5 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | **+2** | 4 | 5 |
 
 <sub>Productos = total en la base · Nuevos = vistos por primera vez ese día · En FL = activos reportados en Florida · Extendiéndose = sin FL todavía pero ganando estados en los últimos 7 días · Aciertos = cuántas de esas listas llegaron a Florida en 14 días. Datos para Excel: [products.csv](products.csv) · Todos los reportes: [reports/](reports/README.md)</sub>

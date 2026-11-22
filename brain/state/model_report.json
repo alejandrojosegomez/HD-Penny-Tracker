@@ -1,8 +1,8 @@
 {
   "trained": false,
-  "snapshot_days": 7,
+  "snapshot_days": 8,
   "labeled": 0,
   "positives": 0,
-  "updated": "2026-11-21T10:41:15",
-  "status": "collecting data: 7 days of snapshots, 0 labeled examples (0 reached FL). Needs >= 15 days and >= 10 of each class."
+  "updated": "2026-11-22T12:44:10",
+  "status": "collecting data: 8 days of snapshots, 0 labeled examples (0 reached FL). Needs >= 15 days and >= 10 of each class."
 }
