@@ -1,12 +1,12 @@
-# 🧠 Reporte del cerebro — 2026-11-22
+# 🧠 Reporte del cerebro — 2026-11-23
 
 [← Panel](../README.md) · [Todos los reportes](README.md)
 
 | Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Extendiéndose |
 |:-:|:-:|:-:|:-:|:-:|
-| **434** | **3** | **237** | **32** | **25** |
+| **434** | **0** | **220** | **30** | **20** |
 
-**Red neuronal:** 🟡 Juntando datos · día **8 de 15**
+**Red neuronal:** 🟡 Juntando datos · día **9 de 15**
 
 **🎯 Aciertos: se miden desde el 2026-12-01**
 
@@ -14,16 +14,16 @@
 
 | # | Producto | SKU | Estados ganados (7 días) | Estados | Reportes |
 |--:|---|---|:-:|--:|--:|
-| 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | **+10** | 12 | 17 |
-| 2 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+8** | 14 | 25 |
-| 3 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+3** | 4 | 4 |
-| 4 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+2** | 7 | 16 |
-| 5 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | **+2** | 4 | 5 |
-| 6 | [DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating S…](https://www.homedepot.com/s/1013121020) | `1013121020` | **+2** | 4 | 5 |
-| 7 | [Anvil 5-Piece Hand Tool Kit](https://www.homedepot.com/s/1015344244) | `1015344244` | **+2** | 3 | 3 |
-| 8 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+2** | 2 | 3 |
-| 9 | [36 in. Floating Shelf](https://www.homedepot.com/s/735996) | `735996` | **+1** | 2 | 3 |
-| 10 | [Texas Trio 4-Burner Dual Fuel Grill with Smoker in Black](https://www.homedepot.com/s/1002719695) | `1002719695` | **+1** | 2 | 2 |
+| 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | **+5** | 12 | 17 |
+| 2 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+3** | 4 | 4 |
+| 3 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+2** | 14 | 25 |
+| 4 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | **+2** | 4 | 5 |
+| 5 | [DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating S…](https://www.homedepot.com/s/1013121020) | `1013121020` | **+2** | 4 | 5 |
+| 6 | [Anvil 5-Piece Hand Tool Kit](https://www.homedepot.com/s/1015344244) | `1015344244` | **+2** | 3 | 3 |
+| 7 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+2** | 2 | 3 |
+| 8 | [36 in. Floating Shelf](https://www.homedepot.com/s/735996) | `735996` | **+1** | 2 | 3 |
+| 9 | [Texas Trio 4-Burner Dual Fuel Grill with Smoker in Black](https://www.homedepot.com/s/1002719695) | `1002719695` | **+1** | 2 | 2 |
+| 10 | [CyberPower 450VA 120-Volt 8-Outlet UPS Battery Backup](https://www.homedepot.com/s/1004043727) | `1004043727` | **+1** | 2 | 2 |
 
 ## 📍 Reportados en Florida (últimos 7 días)
 
@@ -37,8 +37,8 @@
 | 6 | [Maxfit Modular 3/8 in. Drive Right Angle Attachment](https://www.homedepot.com/s/1008778891) | `1008778891` | $25 | 17 | 2 |
 | 7 | [DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray Poly…](https://www.homedepot.com/s/1015277793) | `1015277793` | $20 | 16 | 2 |
 | 8 | [Smart Lighting White Motion Activated Outdoor Integrated LED…](https://www.homedepot.com/s/1004296682) | `1004296682` | $40 | 10 | 2 |
-| 9 | [Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Wate…](https://www.homedepot.com/s/1014175343) | `1014175343` | $63 | 9 | 2 |
-| 10 | [Sedgewood 24.5 in. W x 18.75 in. D x 34.375 in. H Single Sin…](https://www.homedepot.com/s/1003619907) | `1003619907` | $359 | 9 | 2 |
+| 9 | [Sedgewood 24.5 in. W x 18.75 in. D x 34.375 in. H Single Sin…](https://www.homedepot.com/s/1003619907) | `1003619907` | $359 | 9 | 2 |
+| 10 | [Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Wate…](https://www.homedepot.com/s/1014175343) | `1014175343` | $63 | 9 | 2 |
 
 ## 🔥 Más fuertes en todo el país (7 días)
 
@@ -60,7 +60,7 @@
 | Fuente | Estado | Productos |
 |---|:-:|--:|
 | PennyRecon | ✅ | 304 |
-| Paydirt | ✅ | 267 |
+| Paydirt | ✅ | 302 |
 | Penny Pinchin' Mom | ✅ | 67 |
 
 <sub>Generado automáticamente por GitHub Actions. Los enlaces abren la búsqueda del SKU en homedepot.com.</sub>

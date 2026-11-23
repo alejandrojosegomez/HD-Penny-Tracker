@@ -56,3 +56,6 @@ id,source,ran_at,status,items,error
 55,pennyrecon,2026-11-22T12:44:01,ok,304,
 56,paydirt,2026-11-22T12:44:04,ok,267,
 57,ppm,2026-11-22T12:44:07,ok,67,
+58,pennyrecon,2026-11-23T10:20:35,ok,304,
+59,paydirt,2026-11-23T10:20:37,ok,302,
+60,ppm,2026-11-23T10:20:41,ok,67,
