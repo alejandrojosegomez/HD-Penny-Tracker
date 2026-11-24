@@ -2,7 +2,7 @@
 
 Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen por Telegram.
 
-🟡 **Aprendiendo** · `████████████░░░░░░░░` 9/15 días para el primer entrenamiento
+🟡 **Aprendiendo** · `█████████████░░░░░░░` 10/15 días para el primer entrenamiento
 
 🎯 Aciertos: se miden desde el 2026-12-01
 
@@ -19,8 +19,8 @@ Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen 
 | 7 | 2026-11-21 | ✅ listo | 431 | 3 | 33 | 25 | [ver](reports/2026/11/2026-11-21.md) |
 | 8 | 2026-11-22 | ✅ listo | 434 | 3 | 32 | 25 | [ver](reports/2026/11/2026-11-22.md) |
 | 9 | 2026-11-23 | ✅ listo | 434 | 0 | 30 | 20 | [ver](reports/2026/11/2026-11-23.md) |
-| 10 | 2026-11-24 | `██████░░░░` 🔄 en progreso | | | | | |
-| 11 | 2026-11-25 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
+| 10 | 2026-11-24 | ✅ listo | 445 | 11 | 29 | 21 | [ver](reports/2026/11/2026-11-24.md) |
+| 11 | 2026-11-25 | `███████░░░` 🔄 en progreso | | | | | |
 | 12 | 2026-11-26 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
 | 13 | 2026-11-27 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
 | 14 | 2026-11-28 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
@@ -30,10 +30,10 @@ Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen 
 
 | # | Producto | SKU | Estados ganados (7 días) | Estados | Reportes |
 |--:|---|---|:-:|--:|--:|
-| 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | **+5** | 12 | 17 |
-| 2 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+3** | 4 | 4 |
-| 3 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+2** | 14 | 25 |
-| 4 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | **+2** | 4 | 5 |
-| 5 | [DIABLO 9 in. 8 TPI Steel Demon AMPED Carbide Reciprocating S…](https://www.homedepot.com/s/1013121020) | `1013121020` | **+2** | 4 | 5 |
+| 1 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+4** | 4 | 6 |
+| 2 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | **+3** | 5 | 6 |
+| 3 | [HDX 5-Tier Steel Wire Shelving Unit with Casters in Chrome (…](https://www.homedepot.com/s/1005447581) | `1005447581` | **+3** | 4 | 4 |
+| 4 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+2** | 14 | 25 |
+| 5 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+2** | 9 | 21 |
 
 <sub>Productos = total en la base · Nuevos = vistos por primera vez ese día · En FL = activos reportados en Florida · Extendiéndose = sin FL todavía pero ganando estados en los últimos 7 días · Aciertos = cuántas de esas listas llegaron a Florida en 14 días. Datos para Excel: [products.csv](products.csv) · Todos los reportes: [reports/](reports/README.md)</sub>
