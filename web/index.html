@@ -477,7 +477,7 @@ function render(){
     if (view === 'all' && chip !== 'all') rows = rows.filter(p => chip === 'fl' ? p.in_florida : !p.in_florida);
     $('#toolbar').innerHTML = view === 'all'
       ? ['all:Todos','fl:En Florida','nofl:Fuera de Florida'].map(c => { const [k,l]=c.split(':'); return `<button class="chip ${chip===k?'on':''}" data-chip="${k}">${l}</button>`; }).join('') + `<span class="sp">${fmt(rows.length)} productos</span>`
-      : `<span class="sp">${fmt(rows.length)} productos · se actualiza cada mañana a las 7:00</span>`;
+      : `<span class="sp">${fmt(rows.length)} productos · se actualiza una vez al día por la mañana</span>`;
     html = rows.slice(0, 200).map(brainRow).join('');
     if (!rows.length) html = view === 'spread'
       ? empty('🌱','Nada se está extendiendo hoy','Cuando un producto gane estados en la semana aparece aquí.')

@@ -21,7 +21,7 @@
 
 ## Penny Brain: the daily Telegram summary
 
-Every morning at 7:00 AM (Florida) a GitHub Actions workflow (`.github/workflows/brain-daily.yml`) runs `python -m brain.run`:
+Once every morning (Florida) a GitHub Actions workflow (`.github/workflows/brain-daily.yml`) runs `python -m brain.run`. GitHub starts scheduled runs hours late, so the workflow has several schedules; the first one that starts after 5:00 AM Florida time runs (after a quick self-test) and the others stop, so there is one summary a day with no button to press. The "Run workflow" button only runs if today has not run yet (or with *force*).
 
 1. **Collect**: pulls the public Home Depot penny lists from PennyRecon, Paydirt and Penny Pinchin' Mom.
 2. **Track**: records every item, which states reported it and when, and finds the items that are gaining states but haven't reached Florida yet.

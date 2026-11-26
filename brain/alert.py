@@ -20,6 +20,7 @@ STEPS = [  # (env var with the step outcome, friendly name, log file)
     ("OUT_SIMULATED", "Fallo simulado (prueba)", None),
     ("OUT_INSTALL", "Instalar dependencias", None),
     ("OUT_GUARD", "Revisar si ya corrió hoy", None),
+    ("OUT_SELFTEST", "Autoprueba antes de correr", "selftest.log"),
     ("OUT_BRAIN", "Juntar datos / entrenar / reporte", "brain_run.log"),
     ("OUT_SAVE", "Guardar en GitHub", "save.log"),
 ]
