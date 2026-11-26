@@ -43,7 +43,8 @@ def _simulate(con, days=30, items=60):
                 community.add_reports(con, "pennyrecon", [{
                     "sku": sku, "name": f"RYOBI drill {sku}" if int(sku) % 3 else f"LED lamp {sku}",
                     "reported_at": d.isoformat(), "states": states, "retail": 20 + int(sku) % 50,
-                    "report_count": 5 + int(sku) % 40}])
+                    # items that reach FL are the popular ones: a real pattern to learn
+                    "report_count": 5 + int(sku) % 40 + (80 if fl_day else 0)}])
         brain.snapshot(con, d.isoformat())
     con.execute("INSERT INTO collect_runs (source, ran_at, status, items) VALUES "
                 "('pennyrecon', ?, 'ok', 60)", (today.isoformat(),))

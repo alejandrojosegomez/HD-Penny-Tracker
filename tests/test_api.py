@@ -1,5 +1,4 @@
 """API tests with FastAPI's TestClient against a throwaway SQLite db."""
-import os
 import importlib
 import pytest
 

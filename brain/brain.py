@@ -28,7 +28,9 @@ MODEL_PATH = DATA / "model.joblib"
 REPORT_PATH = DATA / "model_report.json"
 HORIZON_DAYS = 14
 MIN_LABELED = 60
-MIN_PER_CLASS = 10
+MIN_PER_CLASS = 5       # distinct items per class before the first training (day 15 has ~7)
+MIN_AUC = 0.60          # below this the network is no better than chance: train, score it,
+                        # but don't show its picks; the "spreading" list stays the signal
 
 KEYWORDS = {
     "kw_light": r"light|lamp|led|sconce|bulb|chandelier",
@@ -157,12 +159,15 @@ def _features(row) -> list[float]:
     return base + [int(bool(re.search(p, name))) for p in KEYWORDS.values()]
 
 
-def build_dataset(con):
+def build_dataset(con, with_groups: bool = False):
+    """Labeled examples: every snapshot of an item not yet in Florida, labeled 1 if it was
+    reported in Florida within HORIZON_DAYS. with_groups=True also returns each row's SKU,
+    because the same item shows up once per day and must stay on one side of a CV split."""
     # last day we observed (even if no items were active that day)
     last = con.execute("SELECT MAX(d) FROM (SELECT MAX(snap_date) d FROM snapshot_runs "
                        "UNION ALL SELECT MAX(snap_date) FROM item_snapshots)").fetchone()[0]
     if not last:
-        return [], [], None
+        return ([], [], None, []) if with_groups else ([], [], None)
     cutoff = (date.fromisoformat(last) - timedelta(days=HORIZON_DAYS)).isoformat()
     rows = con.execute(
         """SELECT s.*, EXISTS (
@@ -172,22 +177,44 @@ def build_dataset(con):
            FROM item_snapshots s
            WHERE s.has_fl = 0 AND s.snap_date <= ?""",
         (f"+{HORIZON_DAYS} day", cutoff)).fetchall()
-    return [_features(r) for r in rows], [r["label"] for r in rows], last
+    X, y = [_features(r) for r in rows], [r["label"] for r in rows]
+    if with_groups:
+        return X, y, last, [r["sku"] for r in rows]
+    return X, y, last
+
+
+def readiness(days: int, y: list, groups: list) -> dict:
+    """What training still waits for. Counts distinct items, not rows: one item seen on 10
+    days is still one example of an item that reached Florida."""
+    pos_items = {g for g, l in zip(groups, y, strict=True) if l}
+    neg_items = {g for g, l in zip(groups, y, strict=True) if not l}
+    need_days = HORIZON_DAYS + 1
+    # labels need HORIZON_DAYS of history, so before that there is nothing to count yet
+    waiting = ("days" if not y and days < need_days else
+               "examples" if (len(y) < MIN_LABELED or len(pos_items) < MIN_PER_CLASS
+                              or len(neg_items) < MIN_PER_CLASS) else None)
+    return {"waiting_for": waiting, "positive_items": len(pos_items), "negative_items": len(neg_items),
+            "items_needed": MIN_PER_CLASS, "days_needed": need_days}
 
 
 def train(con) -> dict:
-    X, y, last = build_dataset(con)
+    X, y, last, groups = build_dataset(con, with_groups=True)
     days = con.execute("SELECT COUNT(*) FROM snapshot_runs").fetchone()[0] or         con.execute("SELECT COUNT(DISTINCT snap_date) FROM item_snapshots").fetchone()[0]
     pos = sum(y)
-    report = {"trained": False, "snapshot_days": days, "labeled": len(y), "positives": pos,
+    ready = readiness(days, y, groups)
+    report = {"trained": False, "snapshot_days": days, "labeled": len(y), "positives": pos, **ready,
               "updated": datetime.now().isoformat(timespec="seconds")}
-    if len(y) < MIN_LABELED or pos < MIN_PER_CLASS or len(y) - pos < MIN_PER_CLASS:
-        report["status"] = (f"collecting data: {days} days of snapshots, {len(y)} labeled examples "
-                            f"({pos} reached FL). Needs >= {HORIZON_DAYS + 1} days and "
-                            f">= {MIN_PER_CLASS} of each class.")
+    if ready["waiting_for"] == "days":
+        report["status"] = (f"collecting data: {days} of {ready['days_needed']} days of snapshots, "
+                            f"{len(y)} labeled examples.")
+    elif ready["waiting_for"] == "examples":
+        report["status"] = (f"waiting for examples: {ready['positive_items']} of {MIN_PER_CLASS} items "
+                            f"have reached Florida after being seen elsewhere ({ready['negative_items']} "
+                            f"did not; needs {MIN_PER_CLASS} of each and {MIN_LABELED} labeled rows, "
+                            f"has {len(y)}).")
     else:
         import joblib
-        from sklearn.model_selection import cross_val_score
+        from sklearn.model_selection import StratifiedGroupKFold, cross_val_score
         from sklearn.neural_network import MLPClassifier
         from sklearn.pipeline import make_pipeline
         from sklearn.preprocessing import StandardScaler
@@ -196,13 +223,19 @@ def train(con) -> dict:
                               MLPClassifier(hidden_layer_sizes=(32, 16), alpha=1e-3,
                                             max_iter=2000,
                                             random_state=0))
-        folds = min(5, pos, len(y) - pos)
-        auc = cross_val_score(model, X, y, cv=folds, scoring="roc_auc").mean()
+        # group by SKU: the same item appears once per day, and letting it sit in both the
+        # training and the test fold would make the AUC look better than it is
+        folds = min(5, ready["positive_items"], ready["negative_items"])
+        cv = StratifiedGroupKFold(n_splits=folds, shuffle=True, random_state=0)
+        auc = cross_val_score(model, X, y, groups=groups, cv=cv, scoring="roc_auc").mean()
         model.fit(X, y)
         joblib.dump(model, MODEL_PATH)
-        report.update(trained=True, cv_auc=round(float(auc), 3),
-                      status=f"trained neural net on {len(y)} examples, AUC {auc:.2f} "
-                             f"(0.5 = coin flip, 1.0 = perfect)")
+        reliable = bool(auc >= MIN_AUC)
+        report.update(trained=True, cv_auc=round(float(auc), 3), reliable=reliable,
+                      status=f"trained neural net on {len(y)} examples "
+                             f"({ready['positive_items']} items reached FL), AUC {auc:.2f} "
+                             f"(0.5 = coin flip, 1.0 = perfect)"
+                             + ("" if reliable else f"; below {MIN_AUC}, picks not shown yet"))
     REPORT_PATH.parent.mkdir(exist_ok=True)
     REPORT_PATH.write_text(json.dumps(report, indent=2))
     return report
@@ -220,7 +253,7 @@ def predict(con, limit: int = 8) -> list[tuple[float, str, str]]:
     if not rows:
         return []
     probs = model.predict_proba([_features(r) for r in rows])[:, 1]
-    ranked = sorted(zip(probs, rows), key=lambda t: -t[0])[:limit]
+    ranked = sorted(zip(probs, rows, strict=True), key=lambda t: -t[0])[:limit]
     return [(float(p), r["sku"], r["name"] or "") for p, r in ranked]
 
 

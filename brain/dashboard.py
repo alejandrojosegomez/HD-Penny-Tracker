@@ -135,21 +135,26 @@ def render(con, counts: dict, rep: dict) -> None:
     acc_line = accuracy_line(rep.get("accuracy") or {})
     fl = _fl(con)
     top = community.hottest(con, days=7, limit=10)
-    preds = rep.get("predictions") or []
+    # an unreliable network still trains and gets scored, but its picks aren't shown
+    preds = (rep.get("predictions") or []) if rep.get("reliable", True) else []
     src_ok = {k: v for k, v in counts.items() if not k.startswith("_")}
 
-    if rep.get("trained"):
+    if rep.get("trained") and rep.get("reliable", True):
         state = f"🟢 Entrenada · AUC **{rep['cv_auc']}** con {rep['labeled']} ejemplos"
-        badge = "entrenada-brightgreen"
+    elif rep.get("trained"):
+        state = (f"🟠 Entrenada con pocos ejemplos · AUC **{rep['cv_auc']}** (aún no supera al azar; "
+                 f"sus predicciones se muestran cuando pase de {brain.MIN_AUC})")
+    elif rep.get("waiting_for") == "examples":
+        state = (f"🟡 Esperando ejemplos · **{rep.get('positive_items', 0)} de {rep.get('items_needed', brain.MIN_PER_CLASS)}** "
+                 f"productos llegaron a Florida (hacen falta {rep.get('items_needed', brain.MIN_PER_CLASS)} para entrenar)")
     else:
         state = f"🟡 Juntando datos · día **{min(days, TARGET_DAYS)} de {TARGET_DAYS}**"
-        badge = f"aprendiendo_{min(days, TARGET_DAYS)}%2F{TARGET_DAYS}-yellow"
 
     # ---- daily report
     src_lines = [f"| {SOURCE_NAMES.get(k, k)} | {'❌ falló' if v == -1 else '✅'} | {'' if v == -1 else v} |"
                  for k, v in src_ok.items()]
     daily = [f"# 🧠 Reporte del cerebro — {today}", "",
-             f"[← Panel](../../../README.md) · [Todos los reportes](../../README.md)", "",
+             "[← Panel](../../../README.md) · [Todos los reportes](../../README.md)", "",
              "| Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Extendiéndose |",
              "|:-:|:-:|:-:|:-:|:-:|",
              f"| **{total}** | **{new}** | **{hist[-1]['active'] if hist else 0}** "
@@ -214,9 +219,19 @@ def render(con, counts: dict, rep: dict) -> None:
             st += " · 🧠 primer entrenamiento"
         rows.append(f"| {n} | {d} | {st} | | | | | |")
 
-    head = (f"🟢 **Red entrenada** · AUC {rep['cv_auc']}" if trained else
-            f"🟡 **Aprendiendo** · `{_bar(done, TARGET_DAYS, 20)}` {done}/{TARGET_DAYS} días "
-            f"para el primer entrenamiento")
+    if trained and rep.get("reliable", True):
+        head = f"🟢 **Red entrenada** · AUC {rep['cv_auc']}"
+    elif trained:
+        head = (f"🟠 **Red entrenada con pocos ejemplos** · AUC {rep['cv_auc']}. Todavía no supera al azar: "
+                f"sigue entrenando cada día y sus predicciones aparecen cuando pase de {brain.MIN_AUC}.")
+    elif rep.get("waiting_for") == "examples":
+        need = rep.get("items_needed", brain.MIN_PER_CLASS)
+        got = min(rep.get("positive_items", 0), need)
+        head = (f"🟡 **Esperando ejemplos** · `{_bar(got, need, 20)}` {got}/{need} productos llegaron "
+                f"a Florida. La red entrena en cuanto haya {need}.")
+    else:
+        head = (f"🟡 **Aprendiendo** · `{_bar(done, TARGET_DAYS, 20)}` {done}/{TARGET_DAYS} días "
+                f"para el primer entrenamiento")
     dash = ["# 🧠 Penny Brain", "",
             "Se actualiza solo una vez al día por la mañana (Florida) y te manda el resumen por Telegram.", "",
             head, "", acc_line, "",
