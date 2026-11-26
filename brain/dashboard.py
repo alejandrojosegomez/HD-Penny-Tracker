@@ -218,7 +218,7 @@ def render(con, counts: dict, rep: dict) -> None:
             f"🟡 **Aprendiendo** · `{_bar(done, TARGET_DAYS, 20)}` {done}/{TARGET_DAYS} días "
             f"para el primer entrenamiento")
     dash = ["# 🧠 Penny Brain", "",
-            "Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen por Telegram.", "",
+            "Se actualiza solo una vez al día por la mañana (Florida) y te manda el resumen por Telegram.", "",
             head, "", acc_line, "",
             "## 📅 Registro diario", "", *rows, ""]
     if preds:

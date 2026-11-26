@@ -2,15 +2,26 @@ name: Brain daily
 
 on:
   schedule:
-    # GitHub sometimes skips a scheduled run entirely (2026-11-21). The first cron is the
-    # main run; the others are backups that only run the brain if today's run is missing
-    # (see brain/guard.py), so there is never a second Telegram summary on the same day.
-    # Keep the first entry in sync with PRIMARY_CRON below.
-    - cron: "0 12 * * *"    # main:   12:00 UTC = 7:00 AM Florida (EST); 8:00 AM during daylight time
-    - cron: "17 14 * * *"   # backup: 9:17 AM Florida (EST)
-    - cron: "43 17 * * *"   # backup: 12:43 PM Florida (EST)
+    # GitHub starts scheduled runs late: for this repo every one has started 7-10 hours
+    # after its time, and on 2026-11-21 one never started. So there are several schedules
+    # (UTC) spread from the evening before to midday. Whichever GitHub starts first after
+    # 5:00 AM Florida time runs the brain; brain/guard.py makes every other one stop, so
+    # there is exactly one Telegram summary a day, with no button to press.
+    - cron: "13 1 * * *"    # 8:13 PM Florida, day before
+    - cron: "13 3 * * *"    # 10:13 PM Florida, day before
+    - cron: "13 5 * * *"    # 12:13 AM Florida
+    - cron: "13 7 * * *"    # 2:13 AM Florida
+    - cron: "13 9 * * *"    # 4:13 AM Florida
+    - cron: "7 11 * * *"    # 6:07 AM Florida
+    - cron: "0 12 * * *"    # 7:00 AM Florida
+    - cron: "17 14 * * *"   # 9:17 AM Florida
+    - cron: "43 17 * * *"   # 12:43 PM Florida
   workflow_dispatch:        # "Run workflow" button in the Actions tab
     inputs:
+      force:
+        description: "Run even if today's run already happened (sends a second summary)"
+        type: boolean
+        default: false
       simulate_failure:
         description: "Test: fail on purpose to check the Slack alert"
         type: boolean
@@ -29,7 +40,6 @@ jobs:
     timeout-minutes: 20
     env:
       TZ: America/New_York
-      PRIMARY_CRON: "0 12 * * *"
     steps:
       # check out the branch as it is when this job starts (not the commit the schedule fired
       # on), so a backup that waited behind the main run sees the main run's saved state
@@ -52,8 +62,17 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           EVENT: ${{ github.event_name }}
-          SCHEDULE: ${{ github.event.schedule }}
-        run: python -m brain.guard --event "$EVENT" --schedule "$SCHEDULE" --primary "$PRIMARY_CRON"
+          FORCE: ${{ inputs.force || false }}
+        run: python -m brain.guard --event "$EVENT" --force "$FORCE"
+
+      - name: Self-test before the run
+        id: selftest
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          set -o pipefail
+          pip install pytest==8.3.4 pyyaml==6.0.2 >/dev/null
+          python -m pytest -q -W ignore::UserWarning tests/test_brain.py tests/test_brain_e2e.py \
+            tests/test_brain_alert.py tests/test_brain_insights.py tests/test_brain_guard.py 2>&1 | tee selftest.log
 
       - name: Simulated failure (test only)
         id: simulated
@@ -96,6 +115,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           OUT_INSTALL: ${{ steps.install.outcome }}
           OUT_GUARD: ${{ steps.guard.outcome }}
+          OUT_SELFTEST: ${{ steps.selftest.outcome }}
           OUT_SIMULATED: ${{ steps.simulated.outcome }}
           OUT_BRAIN: ${{ steps.brain.outcome }}
           OUT_SAVE: ${{ steps.save.outcome }}
