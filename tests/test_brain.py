@@ -76,3 +76,52 @@ def test_known_sku_from_new_source_is_not_new(tmp_path, monkeypatch):
     con.executescript("INSERT INTO snapshot_runs (snap_date, items) VALUES ('2026-10-02', 2);")
     day = dashboard.history(con)[-1]
     assert (day["total"], day["new"]) == (2, 1)    # sku 1 was already known; only sku 2 is new
+
+
+def test_readiness_counts_items_not_rows():
+    # one item seen on 30 days that reached FL is one example, not 30
+    groups = ["a"] * 30 + [str(i) for i in range(70)]
+    y = [1] * 30 + [0] * 70
+    r = learn.readiness(20, y, groups)
+    assert r["waiting_for"] == "examples" and r["positive_items"] == 1 and r["negative_items"] == 70
+    groups2 = [str(i) for i in range(12)] + [f"n{i}" for i in range(60)]
+    r2 = learn.readiness(20, [1] * 12 + [0] * 60, groups2)
+    assert r2["waiting_for"] is None and r2["positive_items"] == 12
+    assert learn.readiness(5, [], [])["waiting_for"] == "days"
+
+
+def test_waits_for_examples_after_enough_days(tmp_path, monkeypatch):
+    """15+ days of history but only a few items reached Florida: no training yet, and the
+    report says what it is waiting for instead of looking stuck at 15/15."""
+    con = _con(tmp_path, monkeypatch)
+    start = date(2026, 10, 1)
+    for day in range(16):
+        d = (start + timedelta(days=day)).isoformat()
+        con.execute("INSERT INTO snapshot_runs VALUES (?, 100)", (d,))
+        for i in range(80):
+            fl = i < 3 and day >= 5                   # only 3 items ever reach FL
+            con.execute("INSERT INTO item_snapshots (sku, snap_date, name, report_count, n_states, "
+                        "has_fl, n_sources, receipt, retail, days_listed) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        (str(i), d, "bag", 2, 1, int(fl), 1, 0, 20.0, day))
+    con.commit()
+    rep = learn.train(con)
+    assert not rep["trained"] and rep["waiting_for"] == "examples"
+    assert rep["positive_items"] == 3 and "3 of 10" in rep["status"]
+
+
+def test_training_cv_keeps_each_item_in_one_fold(tmp_path, monkeypatch):
+    """AUC is measured with items grouped by SKU, so an item never sits in both the
+    training and the test fold."""
+    from sklearn.model_selection import StratifiedGroupKFold
+    seen = {}
+
+    real = StratifiedGroupKFold.split
+
+    def spy(self, X, y=None, groups=None):
+        for tr, te in real(self, X, y, groups):
+            assert not ({groups[i] for i in tr} & {groups[i] for i in te})
+            seen["ok"] = True
+            yield tr, te
+    monkeypatch.setattr(StratifiedGroupKFold, "split", spy)
+    test_trains_neural_net_on_synthetic_history(tmp_path, monkeypatch)
+    assert seen.get("ok")

@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from tracker.providers.base import Observation, ProviderResult, Status
+from tracker.providers.base import Observation, Status
 from tracker.providers.licensed_api import LicensedApiProvider
 from tracker.providers.sample import SampleProvider
 
