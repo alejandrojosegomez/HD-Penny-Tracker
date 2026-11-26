@@ -106,7 +106,7 @@ def test_waits_for_examples_after_enough_days(tmp_path, monkeypatch):
     con.commit()
     rep = learn.train(con)
     assert not rep["trained"] and rep["waiting_for"] == "examples"
-    assert rep["positive_items"] == 3 and "3 of 10" in rep["status"]
+    assert rep["positive_items"] == 3 and "3 of 5" in rep["status"]
 
 
 def test_training_cv_keeps_each_item_in_one_fold(tmp_path, monkeypatch):
@@ -125,3 +125,30 @@ def test_training_cv_keeps_each_item_in_one_fold(tmp_path, monkeypatch):
     monkeypatch.setattr(StratifiedGroupKFold, "split", spy)
     test_trains_neural_net_on_synthetic_history(tmp_path, monkeypatch)
     assert seen.get("ok")
+
+
+def test_trains_on_day_15_with_few_examples_but_hides_a_coin_flip_model(tmp_path, monkeypatch):
+    """The real situation on day 15: ~7 items reached Florida. The network trains, but if its
+    AUC is no better than chance its picks are not shown (they're still logged and scored)."""
+    from brain import run
+    con = _con(tmp_path, monkeypatch)
+    start = date(2026, 10, 1)
+    random.seed(3)
+    for day in range(16):
+        d = (start + timedelta(days=day)).isoformat()
+        con.execute("INSERT INTO snapshot_runs VALUES (?, 100)", (d,))
+        for i in range(120):
+            fl = i < 7 and day >= 5                    # 7 items reach FL, unrelated to features
+            con.execute("INSERT INTO item_snapshots (sku, snap_date, name, report_count, n_states, "
+                        "has_fl, n_sources, receipt, retail, days_listed) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        (str(i), d, "bag", random.randint(1, 5), random.randint(1, 3), int(fl), 1, 0,
+                         20.0, day))
+    con.commit()
+    rep = learn.train(con)
+    assert rep["trained"] and rep["positive_items"] == 7
+    rep["predictions"] = [(0.9, "1", "bag")]
+    rep["reliable"] = False
+    text = run.caption(con, {"pennyrecon": 1}, rep)
+    assert "aún no supera al azar" in text and "🔮" not in text
+    rep["reliable"] = True
+    assert "🔮" in run.caption(con, {"pennyrecon": 1}, rep)

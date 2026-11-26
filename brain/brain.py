@@ -28,7 +28,9 @@ MODEL_PATH = DATA / "model.joblib"
 REPORT_PATH = DATA / "model_report.json"
 HORIZON_DAYS = 14
 MIN_LABELED = 60
-MIN_PER_CLASS = 10
+MIN_PER_CLASS = 5       # distinct items per class before the first training (day 15 has ~7)
+MIN_AUC = 0.60          # below this the network is no better than chance: train, score it,
+                        # but don't show its picks; the "spreading" list stays the signal
 
 KEYWORDS = {
     "kw_light": r"light|lamp|led|sconce|bulb|chandelier",
@@ -228,9 +230,12 @@ def train(con) -> dict:
         auc = cross_val_score(model, X, y, groups=groups, cv=cv, scoring="roc_auc").mean()
         model.fit(X, y)
         joblib.dump(model, MODEL_PATH)
-        report.update(trained=True, cv_auc=round(float(auc), 3),
-                      status=f"trained neural net on {len(y)} examples, AUC {auc:.2f} "
-                             f"(0.5 = coin flip, 1.0 = perfect)")
+        reliable = bool(auc >= MIN_AUC)
+        report.update(trained=True, cv_auc=round(float(auc), 3), reliable=reliable,
+                      status=f"trained neural net on {len(y)} examples "
+                             f"({ready['positive_items']} items reached FL), AUC {auc:.2f} "
+                             f"(0.5 = coin flip, 1.0 = perfect)"
+                             + ("" if reliable else f"; below {MIN_AUC}, picks not shown yet"))
     REPORT_PATH.parent.mkdir(exist_ok=True)
     REPORT_PATH.write_text(json.dumps(report, indent=2))
     return report

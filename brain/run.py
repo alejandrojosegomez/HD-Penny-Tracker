@@ -82,11 +82,14 @@ def caption(con, counts: dict, rep: dict, limit: int = 1024) -> str:
     head = [f"✅ <b>Actualización lista</b> · día {days}"
             + ("" if rep.get("trained") else f" de {target}"),
             f"📦 {total} productos · {new} nuevos hoy", ""]
-    if rep.get("trained"):
+    if rep.get("trained") and rep.get("reliable", True):
         brain_l = [f"🧠 <b>Red entrenada</b> · AUC {rep['cv_auc']}"]
         brain_l += [f"🔮 {p*100:.0f}% {e(n[:30])} <code>{s}</code>" for p, s, n in rep["predictions"][:3]]
+    elif rep.get("trained"):
+        brain_l = [f"🧠 <b>Red entrenada</b> · AUC {rep['cv_auc']} · aún no supera al azar, "
+                   f"sigue aprendiendo con cada día (guíate por «se están extendiendo»)"]
     elif rep.get("waiting_for") == "examples":
-        need = rep.get("items_needed", 10)
+        need = rep.get("items_needed", brain.MIN_PER_CLASS)
         got = min(rep.get("positive_items", 0), need)
         brain_l = [f"🧠 Esperando ejemplos {'▰' * got}{'▱' * (need - got)} {got}/{need} llegaron a FL"]
     else:
