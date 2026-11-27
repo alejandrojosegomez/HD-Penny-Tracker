@@ -1,8 +1,8 @@
 # 🧠 Penny Brain
 
-Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen por Telegram.
+Se actualiza solo una vez al día por la mañana (Florida) y te manda el resumen por Telegram.
 
-🟡 **Aprendiendo** · `████████████████░░░░` 12/15 días para el primer entrenamiento
+🟡 **Aprendiendo** · `█████████████████░░░` 13/15 días para el primer entrenamiento
 
 🎯 Aciertos: se miden desde el 2026-12-01
 
@@ -22,8 +22,8 @@ Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen 
 | 10 | 2026-11-24 | ✅ listo | 445 | 11 | 29 | 21 | [ver](reports/2026/11/2026-11-24.md) |
 | 11 | 2026-11-25 | ✅ listo | 451 | 6 | 31 | 21 | [ver](reports/2026/11/2026-11-25.md) |
 | 12 | 2026-11-26 | ✅ listo | 453 | 2 | 32 | 11 | [ver](reports/2026/11/2026-11-26.md) |
-| 13 | 2026-11-27 | `████████░░` 🔄 en progreso | | | | | |
-| 14 | 2026-11-28 | `░░░░░░░░░░` ⏳ pendiente | | | | | |
+| 13 | 2026-11-27 | ✅ listo | 453 | 0 | 32 | 11 | [ver](reports/2026/11/2026-11-27.md) |
+| 14 | 2026-11-28 | `█████████░` 🔄 en progreso | | | | | |
 | 15 | 2026-11-29 | `░░░░░░░░░░` ⏳ pendiente · 🧠 primer entrenamiento | | | | | |
 
 ## 🔥 Se están extendiendo (aún no en Florida)
@@ -31,9 +31,9 @@ Se actualiza solo todos los días a las 7:00 AM (Florida) y te manda el resumen 
 | # | Producto | SKU | Estados ganados (7 días) | Estados | Reportes |
 |--:|---|---|:-:|--:|--:|
 | 1 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+5** | 12 | 27 |
-| 2 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+2** | 14 | 25 |
-| 3 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+2** | 4 | 8 |
-| 4 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+2** | 4 | 4 |
-| 5 | [HDX 5-Tier Steel Wire Shelving Unit with Casters in Chrome (…](https://www.homedepot.com/s/1005447581) | `1005447581` | **+2** | 4 | 4 |
+| 2 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+2** | 4 | 8 |
+| 3 | [HDX 5-Tier Steel Wire Shelving Unit with Casters in Chrome (…](https://www.homedepot.com/s/1005447581) | `1005447581` | **+2** | 4 | 4 |
+| 4 | [Husky 2500 Lumens Dual Power Rechargeable Battery or Solar P…](https://www.homedepot.com/s/1014778870) | `1014778870` | **+2** | 4 | 4 |
+| 5 | [MAX Alkaline AAA Batteries, 30 Pack](https://www.homedepot.com/s/1002580883) | `1002580883` | **+2** | 3 | 3 |
 
 <sub>Productos = total en la base · Nuevos = vistos por primera vez ese día · En FL = activos reportados en Florida · Extendiéndose = sin FL todavía pero ganando estados en los últimos 7 días · Aciertos = cuántas de esas listas llegaron a Florida en 14 días. Datos para Excel: [products.csv](products.csv) · Todos los reportes: [reports/](reports/README.md)</sub>

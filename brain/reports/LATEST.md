@@ -1,12 +1,12 @@
-# 🧠 Reporte del cerebro — 2026-11-26
+# 🧠 Reporte del cerebro — 2026-11-27
 
 [← Panel](../README.md) · [Todos los reportes](README.md)
 
 | Productos en la base | Nuevos hoy | Activos (14 días) | En Florida (14 días) | Extendiéndose |
 |:-:|:-:|:-:|:-:|:-:|
-| **453** | **2** | **213** | **32** | **11** |
+| **453** | **0** | **210** | **32** | **11** |
 
-**Red neuronal:** 🟡 Juntando datos · día **12 de 15**
+**Red neuronal:** 🟡 Juntando datos · día **13 de 15**
 
 **🎯 Aciertos: se miden desde el 2026-12-01**
 
@@ -15,15 +15,15 @@
 | # | Producto | SKU | Estados ganados (7 días) | Estados | Reportes |
 |--:|---|---|:-:|--:|--:|
 | 1 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | **+5** | 12 | 27 |
-| 2 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+2** | 14 | 25 |
-| 3 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+2** | 4 | 8 |
-| 4 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+2** | 4 | 4 |
-| 5 | [HDX 5-Tier Steel Wire Shelving Unit with Casters in Chrome (…](https://www.homedepot.com/s/1005447581) | `1005447581` | **+2** | 4 | 4 |
-| 6 | [Husky 2500 Lumens Dual Power Rechargeable Battery or Solar P…](https://www.homedepot.com/s/1014778870) | `1014778870` | **+2** | 4 | 4 |
-| 7 | [MAX Alkaline AAA Batteries, 30 Pack](https://www.homedepot.com/s/1002580883) | `1002580883` | **+2** | 3 | 3 |
+| 2 | [Milwaukee PACKOUT M18 Battery Rack](https://www.homedepot.com/s/1007608689) | `1007608689` | **+2** | 4 | 8 |
+| 3 | [HDX 5-Tier Steel Wire Shelving Unit with Casters in Chrome (…](https://www.homedepot.com/s/1005447581) | `1005447581` | **+2** | 4 | 4 |
+| 4 | [Husky 2500 Lumens Dual Power Rechargeable Battery or Solar P…](https://www.homedepot.com/s/1014778870) | `1014778870` | **+2** | 4 | 4 |
+| 5 | [MAX Alkaline AAA Batteries, 30 Pack](https://www.homedepot.com/s/1002580883) | `1002580883` | **+2** | 3 | 3 |
+| 6 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | **+1** | 14 | 25 |
+| 7 | [Home Decorators Collection Alberson Collection 4-Light Brush…](https://www.homedepot.com/s/1001514599) | `1001514599` | **+1** | 4 | 4 |
 | 8 | [Power Flush 12 inch Rough In Two-Piece 1.28 GPF Single Flush…](https://www.homedepot.com/s/1010139541) | `1010139541` | **+1** | 3 | 3 |
-| 9 | [25 ft. 14/3 Medium Duty Indoor/Outdoor Extension Cord, Red/B…](https://www.homedepot.com/s/277533) | `277533` | **+1** | 3 | 3 |
-| 10 | [Weber Genesis Grill 300 Series Rust-Resistant Griddle Insert](https://www.homedepot.com/s/1009599161) | `1009599161` | **+1** | 2 | 2 |
+| 9 | [Wayne Canyon Oak 12 MIL x 7 in. W x 48 in. L Waterproof Clic…](https://www.homedepot.com/s/1012697616) | `1012697616` | **+1** | 3 | 3 |
+| 10 | [25 ft. 14/3 Medium Duty Indoor/Outdoor Extension Cord, Red/B…](https://www.homedepot.com/s/277533) | `277533` | **+1** | 3 | 3 |
 
 ## 📍 Reportados en Florida (últimos 7 días)
 
@@ -32,10 +32,10 @@
 | 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | $100 | 24 | 2 |
 | 2 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 263 | 2 |
 | 3 | [Husky 800 Lumen LED Rechargeable Detachable Tripod Work Ligh…](https://www.homedepot.com/s/1012388248) | `1012388248` | $20 | 122 | 2 |
-| 4 | [Husky 12000 Lumens/6000 Lumens Portable LED Work Light](https://www.homedepot.com/s/1006374596) | `1006374596` | $70 | 47 | 2 |
+| 4 | [Husky 12000 Lumens/6000 Lumens Portable LED Work Light](https://www.homedepot.com/s/1006374596) | `1006374596` | $70 | 50 | 2 |
 | 5 | [Maxfit Modular 3/8 in. Drive Right Angle Attachment](https://www.homedepot.com/s/1008778891) | `1008778891` | $25 | 28 | 2 |
 | 6 | [DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray Poly…](https://www.homedepot.com/s/1015277793) | `1015277793` | $20 | 17 | 2 |
-| 7 | [Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Wate…](https://www.homedepot.com/s/1014175343) | `1014175343` | $63 | 14 | 2 |
+| 7 | [Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Wate…](https://www.homedepot.com/s/1014175343) | `1014175343` | $63 | 16 | 2 |
 | 8 | [Ring Floodlight Cam Wired Pro - Smart Security Video Camera …](https://www.homedepot.com/s/1006104733) | `1006104733` | $230 | 11 | 2 |
 | 9 | [Z320R 42 in. 21.5 HP Dual Hydrostatic Gas V-Twin Zero Turn R…](https://www.homedepot.com/s/1008626687) | `1008626687` | $3,837 | 10 | 2 |
 | 10 | [RIDGID 15 Amp 10 in. Portable Corded Pro Jobsite Table Saw w…](https://www.homedepot.com/s/1004372760) | `1004372760` | $549 | 9 | 2 |
@@ -47,19 +47,19 @@
 | 1 | [Home Decorators Collection Alberson 5 in. Brushed Nickel 2-L…](https://www.homedepot.com/s/1004871058) | `1004871058` | $100 | 24 | 2 | AL, CA, CO, **FL**, GA, KS +10 |
 | 2 | [RYOBI ONE+ HP 18V Brushless Bagless Cordless Pet Mesh Filter…](https://www.homedepot.com/s/1009074829) | `1009074829` | $199 | 263 | 2 | AL, AZ, CA, CO, CT, **FL** +27 |
 | 3 | [Husky 800 Lumen LED Rechargeable Detachable Tripod Work Ligh…](https://www.homedepot.com/s/1012388248) | `1012388248` | $20 | 122 | 2 | AL, CA, CO, CT, **FL**, GA +22 |
-| 4 | [Husky 12000 Lumens/6000 Lumens Portable LED Work Light](https://www.homedepot.com/s/1006374596) | `1006374596` | $70 | 47 | 2 | AK, AZ, CA, **FL**, GA, IL +12 |
+| 4 | [Husky 12000 Lumens/6000 Lumens Portable LED Work Light](https://www.homedepot.com/s/1006374596) | `1006374596` | $70 | 50 | 2 | AK, AZ, CA, **FL**, GA, IL +12 |
 | 5 | [Maxfit Modular 3/8 in. Drive Right Angle Attachment](https://www.homedepot.com/s/1008778891) | `1008778891` | $25 | 28 | 2 | CA, CO, **FL**, GA, IL, KY +7 |
 | 6 | [RYOBI ONE+ HP 18V Cordless Pet Stick Vacuum Cleaner Kit with…](https://www.homedepot.com/s/1007473601) | `1007473601` | $199 | 27 | 2 | AZ, CA, CO, GA, IN, MI +6 |
 | 7 | [Home Decorators Collection Hazel Heights 24 in. 3-Light Blac…](https://www.homedepot.com/s/1006423739) | `1006423739` | $70 | 25 | 2 | CA, CO, CT, IL, LA, MN +8 |
 | 8 | [DURASACK 20 Gal. Heavy-Duty Moving and Storage Bag Gray Poly…](https://www.homedepot.com/s/1015277793) | `1015277793` | $20 | 17 | 2 | AK, CA, DE, **FL**, IL, KS +7 |
-| 9 | [Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Wate…](https://www.homedepot.com/s/1014175343) | `1014175343` | $63 | 14 | 2 | CA, **FL**, IA, ID, MI, NJ +4 |
+| 9 | [Monaco Oak 22 MIL x 9.06 in. W x 48.03 in. L Click Lock Wate…](https://www.homedepot.com/s/1014175343) | `1014175343` | $63 | 16 | 2 | CA, **FL**, IA, ID, MI, NJ +4 |
 | 10 | [Ring Floodlight Cam Wired Pro - Smart Security Video Camera …](https://www.homedepot.com/s/1006104733) | `1006104733` | $230 | 11 | 2 | AZ, **FL**, GA, IL, MA, TX +1 |
 
 ## 🌐 Fuentes
 
 | Fuente | Estado | Productos |
 |---|:-:|--:|
-| PennyRecon | ✅ | 314 |
+| PennyRecon | ✅ | 312 |
 | Paydirt | ✅ | 295 |
 | Penny Pinchin' Mom | ✅ | 67 |
 
