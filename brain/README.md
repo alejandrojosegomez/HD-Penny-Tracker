@@ -2,7 +2,7 @@
 
 Se actualiza solo una vez al día por la mañana (Florida) y te manda el resumen por Telegram.
 
-🟡 **Aprendiendo** · `█████████████████░░░` 13/15 días para el primer entrenamiento
+🟡 **Aprendiendo** · `███████████████████░` 14/15 días para el primer entrenamiento
 
 🎯 Aciertos: se miden desde el 2026-12-01
 
@@ -23,8 +23,8 @@ Se actualiza solo una vez al día por la mañana (Florida) y te manda el resumen
 | 11 | 2026-11-25 | ✅ listo | 451 | 6 | 31 | 21 | [ver](reports/2026/11/2026-11-25.md) |
 | 12 | 2026-11-26 | ✅ listo | 453 | 2 | 32 | 11 | [ver](reports/2026/11/2026-11-26.md) |
 | 13 | 2026-11-27 | ✅ listo | 453 | 0 | 32 | 11 | [ver](reports/2026/11/2026-11-27.md) |
-| 14 | 2026-11-28 | `█████████░` 🔄 en progreso | | | | | |
-| 15 | 2026-11-29 | `░░░░░░░░░░` ⏳ pendiente · 🧠 primer entrenamiento | | | | | |
+| 14 | 2026-11-28 | ✅ listo | 453 | 0 | 32 | 11 | [ver](reports/2026/11/2026-11-28.md) |
+| 15 | 2026-11-29 | `█████████░` 🔄 en progreso · 🧠 primer entrenamiento | | | | | |
 
 ## 🔥 Se están extendiendo (aún no en Florida)
 

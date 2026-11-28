@@ -1,6 +1,6 @@
 {
   "trained": false,
-  "snapshot_days": 13,
+  "snapshot_days": 14,
   "labeled": 0,
   "positives": 0,
   "waiting_for": "days",
@@ -8,6 +8,6 @@
   "negative_items": 0,
   "items_needed": 5,
   "days_needed": 15,
-  "updated": "2026-11-27T07:24:57",
-  "status": "collecting data: 13 of 15 days of snapshots, 0 labeled examples."
+  "updated": "2026-11-28T06:48:17",
+  "status": "collecting data: 14 of 15 days of snapshots, 0 labeled examples."
 }

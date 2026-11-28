@@ -71,3 +71,6 @@ id,source,ran_at,status,items,error
 70,pennyrecon,2026-11-27T07:24:49,ok,312,
 71,paydirt,2026-11-27T07:24:51,ok,295,
 72,ppm,2026-11-27T07:24:54,ok,67,
+73,pennyrecon,2026-11-28T06:48:06,ok,307,
+74,paydirt,2026-11-28T06:48:09,ok,298,
+75,ppm,2026-11-28T06:48:14,ok,67,
